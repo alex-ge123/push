@@ -1,0 +1,7 @@
+server:
+  port: 5200
+spring:
+  application:
+    name: virsical-push
+  profiles:
+    active: dev
