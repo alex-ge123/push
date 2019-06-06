@@ -12,6 +12,7 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -30,13 +31,13 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @Configuration
 @AllArgsConstructor
 @EnableWebSocketMessageBroker
-public class WebSocketAutoConfig implements WebSocketMessageBrokerConfigurer {
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 //  private CustomRemoteTokenServices tokenService
 
   /**
    * controller 注册协议节点,并映射指定的URl
    *
-   * @param registry
+   * @param registry stomp端点注册表
    */
   @Override
   public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -47,16 +48,29 @@ public class WebSocketAutoConfig implements WebSocketMessageBrokerConfigurer {
   /**
    * 配置消息代理(MessageBroker)
    *
-   * @param registry
+   * @param registry 消息代理注册表
    */
   @Override
   public void configureMessageBroker(MessageBrokerRegistry registry) {
-    // 订阅Broker名称
-    // 广播式应配置一个/topic消息代理，点对点应配置一个/user消息代理
-    registry.enableSimpleBroker("/topic", "/user");
+    // 当我们使用基于WebSocket/SockJS协议的STOMP时，如果STOMP客户端与服务器端要协商心跳交换的时候，SockJS的心跳就不起作用。
+    // 定义服务端心跳间隔时间，单位毫秒
+    // 第一个参数:server能保证的发送心跳的最小间隔, 如果是0代表server不发送心跳.
+    // 第二个参数:server希望收到client心跳的间隔, 如果是0代表server不希望收到client的心跳.
+    long[] heartBeat = {10000L, 10000L};
+    ThreadPoolTaskScheduler te = new ThreadPoolTaskScheduler();
+    te.setPoolSize(1);
+    te.setThreadNamePrefix("wss-heartbeat-thread-");
+    te.initialize();
+    // enableSimpleBroker启用简单的消息代理，配置一个或多个代理的目标前缀
+    // setHeartbeatValue设置后台向前台发送的心跳频率，这个不能单独设置，不然不起作用
+    // 配合后面setTaskScheduler才可以生效，使用一个线程发送心跳。
+    registry.enableSimpleBroker("/topic", "/user")
+      .setHeartbeatValue(heartBeat)
+      .setTaskScheduler(te);
     // 点对点使用的订阅前缀（客户端订阅路径上会体现出来），不设置的话，默认也是/user/
+    // 配置用于标识用户目标的前缀。用户目的地为用户提供订阅其唯一队列名称的能力
+    // 会话以及其他人向那些唯一的用户发送消息，用户特定的队列。
     registry.setUserDestinationPrefix("/user");
-
   }
 
   /**

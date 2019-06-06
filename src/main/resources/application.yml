@@ -1,7 +1,18 @@
 server:
   port: 5200
+  undertow:
+    # 设置IO线程数, 它主要执行非阻塞的任务,它们会负责多个连接, 默认设置每个CPU核心一个线程
+    # 不要设置过大，如果过大，启动项目会报错：打开文件数过多
+    io-threads: 4
+    # 阻塞任务线程池, 当执行类似servlet请求阻塞IO操作, undertow会从这个线程池中取得线程
+    # 它的值设置取决于系统线程执行任务的阻塞系数，默认值是IO线程数*8
+    worker-threads: 32
 spring:
   application:
     name: virsical-push
   profiles:
     active: dev
+
+logging:
+  level:
+    root: debug
