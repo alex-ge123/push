@@ -1,9 +1,10 @@
 package com.wafersystems.virsical.push.config;
 
+import cn.hutool.core.util.StrUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -34,6 +35,10 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 //  private CustomRemoteTokenServices tokenService
 
+  private StringRedisTemplate stringRedisTemplate;
+
+  private DeployProperties deployProperties;
+
   /**
    * controller 注册协议节点,并映射指定的URl
    *
@@ -61,15 +66,19 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     te.setPoolSize(1);
     te.setThreadNamePrefix("wss-heartbeat-thread-");
     te.initialize();
-    // enableSimpleBroker启用简单的消息代理，配置一个或多个代理的目标前缀
-    // setHeartbeatValue设置后台向前台发送的心跳频率，这个不能单独设置，不然不起作用
-    // 配合后面setTaskScheduler才可以生效，使用一个线程发送心跳。
+    /*
+     * 用户可以订阅来自"/topic"和"/user"的消息，
+     * 使用topic来达到群发效果，使用user进行一对一发送，
+     * 客户端只可以订阅这两个前缀的主题。
+     *
+     * enableSimpleBroker启用简单的消息代理，配置一个或多个代理的目标前缀
+     * setHeartbeatValue设置后台向前台发送的心跳频率，这个不能单独设置，不然不起作用
+     * 配合后面setTaskScheduler才可以生效，使用一个线程发送心跳。
+     */
     registry.enableSimpleBroker("/topic", "/user")
       .setHeartbeatValue(heartBeat)
       .setTaskScheduler(te);
-    // 点对点使用的订阅前缀（客户端订阅路径上会体现出来），不设置的话，默认也是/user/
-    // 配置用于标识用户目标的前缀。用户目的地为用户提供订阅其唯一队列名称的能力
-    // 会话以及其他人向那些唯一的用户发送消息，用户特定的队列。
+    // 配置用于标识用户目标的前缀。
     registry.setUserDestinationPrefix("/user");
   }
 
@@ -91,27 +100,23 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
       public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
-          String tokenHeader = accessor.getFirstNativeHeader(HttpHeaders.AUTHORIZATION);
+          String token = accessor.getFirstNativeHeader("token");
           String product = accessor.getFirstNativeHeader("product");
           String tenant = accessor.getFirstNativeHeader("tenant");
           String terminal = accessor.getFirstNativeHeader("terminal");
-          String id = accessor.getFirstNativeHeader("id");
-          log.info("webSocket preSend: token=[{}], product=[{}], tenant=[{}], terminal=[{}], id=[{}]", tokenHeader, product, tenant, terminal, id);
-//          if (StrUtil.isBlank(tokenHeader) || !tokenHeader.startsWith(OAuth2AccessToken.BEARER_TYPE.toLowerCase())) {
-//            log.info("tokenHeader格式异常[{}]", tokenHeader);
-//            throw new BusinessException(String.format("tokenHeader格式异常[%s]", tokenHeader));
-//          }
-//          String token = tokenHeader.replace(OAuth2AccessToken.BEARER_TYPE.toLowerCase(), "").trim();
-//          try {
-//            OAuth2Authentication auth2Authentication = tokenService.loadAuthentication(token);
-//            SecurityContextHolder.getContext().setAuthentication(auth2Authentication);
-//            CustomUser user = (CustomUser) auth2Authentication.getPrincipal();
-//            accessor.setUser(new WebSocketPrincipal(String.valueOf(user.getId())));
-//            log.info("创建WebSocket链接用户：[{}]", Objects.requireNonNull(accessor.getUser()).getName());
-//          } catch (Exception e) {
-//            log.error("验证token异常", e);
-//            throw new BusinessException(String.format("验证token异常[%s]", e.getMessage()));
-//          }
+          String clientId = accessor.getFirstNativeHeader("clientId");
+          log.info("webSocket preSend \n Message [{}] \n MessageChannel [{}]", message, channel);
+          // 验证token
+          if (StrUtil.isBlank(token)) {
+            log.info("token验证失败[{}]", token);
+            return null;
+          }
+          if (deployProperties.isCluster()) {
+            // 集群模式下，保存客户端id与消息id到缓存
+            String simpSessionId = (String) accessor.getHeader(PushConstants.SIMP_SESSION_ID);
+            stringRedisTemplate.opsForList().leftPush(PushConstants.PUSH_SERVICE_CLIENTID + clientId, simpSessionId);
+            stringRedisTemplate.opsForHash().put(PushConstants.PUSH_SERVICE_SIMPSESSIONID, simpSessionId, clientId);
+          }
         }
         return message;
       }
@@ -126,7 +131,16 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
        */
       @Override
       public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
-        log.info("webSocket postSend");
+        log.info("webSocket postSend \n Message [{}] \n MessageChannel [{}] \n sent [{}]", message, channel, sent);
+        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+        // 集群模式下，断开连接后，删除缓存
+        if (deployProperties.isCluster() && accessor != null && StompCommand.DISCONNECT.equals(accessor.getCommand())) {
+          String simpSessionId = (String) accessor.getHeader(PushConstants.SIMP_SESSION_ID);
+          String clientId = (String) stringRedisTemplate.opsForHash().get(PushConstants.PUSH_SERVICE_SIMPSESSIONID,
+            simpSessionId);
+          stringRedisTemplate.opsForHash().delete(PushConstants.PUSH_SERVICE_SIMPSESSIONID, simpSessionId);
+          stringRedisTemplate.opsForList().remove(PushConstants.PUSH_SERVICE_CLIENTID + clientId, 0, simpSessionId);
+        }
       }
 
       /**
@@ -141,7 +155,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
        */
       @Override
       public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, Exception ex) {
-        log.info("webSocket afterSendCompletion");
+        log.info("webSocket afterSendCompletion \n Message [{}] \n MessageChannel [{}] \n sent [{}]", message,
+          channel, sent);
       }
 
       /**

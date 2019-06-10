@@ -3,8 +3,10 @@ package com.wafersystems.virsical.push.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.socket.messaging.DefaultSimpUserRegistry;
 
 /**
  * @author tandk
@@ -17,6 +19,9 @@ public class SendController {
   @Autowired
   private SimpMessagingTemplate simpMessagingTemplate;
 
+  @Autowired
+  private SimpUserRegistry defaultSimpUserRegistry;
+
   @GetMapping("send-to-all")
   public String convertAndSend(String msg){
     log.info("广播消息: [{}]", msg);
@@ -27,6 +32,7 @@ public class SendController {
   @GetMapping("send-to-user")
   public String convertAndSendToUser(String userId, String msg){
     log.info("订阅消息: [{}]", msg);
+    defaultSimpUserRegistry.getUserCount();
     simpMessagingTemplate.convertAndSendToUser(userId,"/to-user", "手动私发消息：" + msg);
     return "ok";
   }
