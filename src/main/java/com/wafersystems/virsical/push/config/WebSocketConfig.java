@@ -21,9 +21,9 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 /**
  * WebSocket配置
  *
- * <p>	@EnableWebSocketMessageBroker</p>
- * <p>	开启使用STOMP协议来传输基于代理(message broker)的消息,</p>
- * <p>	此时浏览器支持使用@MessageMapping 就像支持@RequestMapping一样。</p>
+ * <p>@EnableWebSocketMessageBroker</p>
+ * <p>开启使用STOMP协议来传输基于代理(message broker)的消息,</p>
+ * <p>此时浏览器支持使用@MessageMapping 就像支持@RequestMapping一样。</p>
  *
  * @author tandk
  * @date 2019/6/10 10:42
@@ -52,15 +52,16 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
    */
   @Override
   public void configureMessageBroker(MessageBrokerRegistry registry) {
+    // 服务端发起心跳线程池
+    ThreadPoolTaskScheduler te = new ThreadPoolTaskScheduler();
+    te.setPoolSize(1);
+    te.setThreadNamePrefix("wss-heartbeat-thread-");
+    te.initialize();
     // 当我们使用基于WebSocket/SockJS协议的STOMP时，如果STOMP客户端与服务器端要协商心跳交换的时候，SockJS的心跳就不起作用。
     // 定义服务端心跳间隔时间，单位毫秒
     // 第一个参数:server能保证的发送心跳的最小间隔, 如果是0代表server不发送心跳.
     // 第二个参数:server希望收到client心跳的间隔, 如果是0代表server不希望收到client的心跳.
     long[] heartBeat = {10000L, 10000L};
-    ThreadPoolTaskScheduler te = new ThreadPoolTaskScheduler();
-    te.setPoolSize(1);
-    te.setThreadNamePrefix("wss-heartbeat-thread-");
-    te.initialize();
     /*
      * 创建内存中的消息代理，其中包含一个或多个用于发送和接收消息的目标。
      * 定义了两个目标地址前缀： topic和 user。
@@ -145,7 +146,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         if (accessor != null && !SimpMessageType.HEARTBEAT.equals(accessor.getMessageType())) {
           log.info("webSocket afterSendCompletion | Message [{}] | MessageChannel [{}] | sent [{}]", message,
-            channel, sent);
+              channel, sent);
         }
       }
 

@@ -26,14 +26,22 @@ public class FanoutReceiver {
 
   private final SimpMessagingTemplate simpMessagingTemplate;
 
+  /**
+   * 监听推送消息队列
+   *
+   * @param message 消息
+   */
   @RabbitListener(queues = RabbitMqConfig.FANOUT_QUEUE_PUSH)
   public void receiveTopicPush(@Payload String message) {
     log.info("【fanout.queue.push监听到消息】" + message);
     MessageDTO messageDTO = JSON.parseObject(message, MessageDTO.class);
-    if ("BATCH".equals(messageDTO.getMsgType())) {
+    String all = "ALL";
+    String one = "ONE";
+    if (all.equals(messageDTO.getMsgType())) {
       simpMessagingTemplate.convertAndSend(PushConstants.PUSH_ALL_DESTINATION, messageDTO.getData());
-    } else if ("ONE".equals(messageDTO.getMsgType())) {
-      simpMessagingTemplate.convertAndSendToUser(messageDTO.getClientId(), PushConstants.PUSH_USER_DESTINATION, messageDTO.getData());
+    } else if (one.equals(messageDTO.getMsgType())) {
+      simpMessagingTemplate.convertAndSendToUser(messageDTO.getClientId(), PushConstants.PUSH_USER_DESTINATION,
+          messageDTO.getData());
     }
   }
 }

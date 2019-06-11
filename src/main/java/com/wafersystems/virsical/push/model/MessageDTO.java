@@ -25,7 +25,7 @@ public class MessageDTO {
   private Long msgTime;
 
   /**
-   * 消息类型（ONE单条(点对点)|BATCH批量(广播)）
+   * 消息类型（ONE单条(点对点)|BATCH批量|ALL(广播)）
    */
   private String msgType;
 

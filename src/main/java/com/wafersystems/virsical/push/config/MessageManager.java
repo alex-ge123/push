@@ -16,12 +16,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConditionalOnExpression("${push.service.cluster} == true")
 public class MessageManager {
-    private final AmqpTemplate rabbitTemplate;
+  private final AmqpTemplate rabbitTemplate;
 
-    @Autowired
-    public MessageManager(AmqpTemplate rabbitTemplate) {
-      this.rabbitTemplate = rabbitTemplate;
-    }
+  @Autowired
+  public MessageManager(AmqpTemplate rabbitTemplate) {
+    this.rabbitTemplate = rabbitTemplate;
+  }
 
   /**
    * 发送广播
