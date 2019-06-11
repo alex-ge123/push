@@ -1,17 +1,19 @@
 package com.wafersystems.virsical.push.config;
 
+import cn.hutool.core.util.StrUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -19,24 +21,23 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 /**
  * WebSocket配置
  *
- * <br>	@EnableWebSocketMessageBroker
- * <br>		开启使用STOMP协议来传输基于代理(message broker)的消息,
- * <br>		此时浏览器支持使用@MessageMapping 就像支持@RequestMapping一样。
+ * <p>@EnableWebSocketMessageBroker</p>
+ * <p>开启使用STOMP协议来传输基于代理(message broker)的消息,</p>
+ * <p>此时浏览器支持使用@MessageMapping 就像支持@RequestMapping一样。</p>
  *
  * @author tandk
- * @date 2019/2/1 10:42
+ * @date 2019/6/10 10:42
  */
 @Slf4j
 @Configuration
 @AllArgsConstructor
 @EnableWebSocketMessageBroker
-public class WebSocketAutoConfig implements WebSocketMessageBrokerConfigurer {
-//  private CustomRemoteTokenServices tokenService
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
   /**
    * controller 注册协议节点,并映射指定的URl
    *
-   * @param registry
+   * @param registry stomp端点注册表
    */
   @Override
   public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -47,16 +48,37 @@ public class WebSocketAutoConfig implements WebSocketMessageBrokerConfigurer {
   /**
    * 配置消息代理(MessageBroker)
    *
-   * @param registry
+   * @param registry 消息代理注册表
    */
   @Override
   public void configureMessageBroker(MessageBrokerRegistry registry) {
-    // 订阅Broker名称
-    // 广播式应配置一个/topic消息代理，点对点应配置一个/user消息代理
-    registry.enableSimpleBroker("/topic", "/user");
-    // 点对点使用的订阅前缀（客户端订阅路径上会体现出来），不设置的话，默认也是/user/
+    // 服务端发起心跳线程池
+    ThreadPoolTaskScheduler te = new ThreadPoolTaskScheduler();
+    te.setPoolSize(1);
+    te.setThreadNamePrefix("wss-heartbeat-thread-");
+    te.initialize();
+    // 当我们使用基于WebSocket/SockJS协议的STOMP时，如果STOMP客户端与服务器端要协商心跳交换的时候，SockJS的心跳就不起作用。
+    // 定义服务端心跳间隔时间，单位毫秒
+    // 第一个参数:server能保证的发送心跳的最小间隔, 如果是0代表server不发送心跳.
+    // 第二个参数:server希望收到client心跳的间隔, 如果是0代表server不希望收到client的心跳.
+    long[] heartBeat = {10000L, 10000L};
+    /*
+     * 创建内存中的消息代理，其中包含一个或多个用于发送和接收消息的目标。
+     * 定义了两个目标地址前缀： topic和 user。
+     * 通过pub-sub模型将以 topic为前缀的消息传递到所有订阅客户端的目标地址。
+     * 使用topic来达到群发效果，使用user进行一对一发送，
+     *
+     * enableSimpleBroker启用简单的消息代理，配置一个或多个代理的目标前缀
+     * setHeartbeatValue设置后台向前台发送的心跳频率，这个不能单独设置，不然不起作用
+     * 配合后面setTaskScheduler才可以生效，使用一个线程发送心跳。
+     */
+    registry.enableSimpleBroker("/topic", "/user")
+      .setHeartbeatValue(heartBeat)
+      .setTaskScheduler(te);
+    // 配置用于标识用户目标的前缀。
     registry.setUserDestinationPrefix("/user");
-
+    // 定义前缀 app，用于过滤目标地址，这些地址在 Controller中被 @MessageMapping修饰的方法处理。
+    registry.setApplicationDestinationPrefixes("/app");
   }
 
   /**
@@ -76,28 +98,19 @@ public class WebSocketAutoConfig implements WebSocketMessageBrokerConfigurer {
       @Override
       public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+        // 连接请求
         if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
-          String tokenHeader = accessor.getFirstNativeHeader(HttpHeaders.AUTHORIZATION);
-          String product = accessor.getFirstNativeHeader("product");
-          String tenant = accessor.getFirstNativeHeader("tenant");
-          String terminal = accessor.getFirstNativeHeader("terminal");
-          String id = accessor.getFirstNativeHeader("id");
-          log.info("webSocket preSend: token=[{}], product=[{}], tenant=[{}], terminal=[{}], id=[{}]", tokenHeader, product, tenant, terminal, id);
-//          if (StrUtil.isBlank(tokenHeader) || !tokenHeader.startsWith(OAuth2AccessToken.BEARER_TYPE.toLowerCase())) {
-//            log.info("tokenHeader格式异常[{}]", tokenHeader);
-//            throw new BusinessException(String.format("tokenHeader格式异常[%s]", tokenHeader));
-//          }
-//          String token = tokenHeader.replace(OAuth2AccessToken.BEARER_TYPE.toLowerCase(), "").trim();
-//          try {
-//            OAuth2Authentication auth2Authentication = tokenService.loadAuthentication(token);
-//            SecurityContextHolder.getContext().setAuthentication(auth2Authentication);
-//            CustomUser user = (CustomUser) auth2Authentication.getPrincipal();
-//            accessor.setUser(new WebSocketPrincipal(String.valueOf(user.getId())));
-//            log.info("创建WebSocket链接用户：[{}]", Objects.requireNonNull(accessor.getUser()).getName());
-//          } catch (Exception e) {
-//            log.error("验证token异常", e);
-//            throw new BusinessException(String.format("验证token异常[%s]", e.getMessage()));
-//          }
+          String token = accessor.getFirstNativeHeader("token");
+          String clientId = accessor.getFirstNativeHeader("clientId");
+          log.info("webSocket preSend | Message [{}] | MessageChannel [{}]", message, channel);
+          // 验证token
+          if (StrUtil.isBlank(token)) {
+            log.info("token验证失败[{}]", token);
+            return null;
+          }
+          // 设置当前用户
+          WebSocketPrincipal webSocketPrincipal = new WebSocketPrincipal(clientId);
+          accessor.setUser(webSocketPrincipal);
         }
         return message;
       }
@@ -112,7 +125,10 @@ public class WebSocketAutoConfig implements WebSocketMessageBrokerConfigurer {
        */
       @Override
       public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
-        log.info("webSocket postSend");
+        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+        if (accessor != null && !SimpMessageType.HEARTBEAT.equals(accessor.getMessageType())) {
+          log.info("webSocket postSend | Message [{}] | MessageChannel [{}] | sent [{}]", message, channel, sent);
+        }
       }
 
       /**
@@ -127,7 +143,11 @@ public class WebSocketAutoConfig implements WebSocketMessageBrokerConfigurer {
        */
       @Override
       public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, Exception ex) {
-        log.info("webSocket afterSendCompletion");
+        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+        if (accessor != null && !SimpMessageType.HEARTBEAT.equals(accessor.getMessageType())) {
+          log.info("webSocket afterSendCompletion | Message [{}] | MessageChannel [{}] | sent [{}]", message,
+              channel, sent);
+        }
       }
 
       /**
