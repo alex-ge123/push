@@ -7,8 +7,9 @@
 <body>
 <div>发送消息<br>
   内容：<input type="text" id="content">
-  接收人：<input type="text" id="user" value="map_DSM_DSM001">
-  <button onclick="sendMessage()">发送</button></div>
+  接收人：<input type="text" id="user" value="DSM001">
+  <button onclick="sendMessage()">发送</button>
+</div>
 <hr>
 <div>消息展示</div>
 <hr>
@@ -35,6 +36,8 @@
     disconnect()
   }
 
+  var clientId = 'DSM001';
+
   // 建立连接
   function connect() {
     var socket = new SockJS('http://localhost:5200/ws'); //连接SockJS的endpoint名称为"ws"
@@ -43,9 +46,7 @@
     stompClient.heartbeat.incoming = 20000; //客户端不从服务端接收心跳包
     var headers = {
       'token': '05d180d5-7e80-4d2f-9ac4-f74ec7fdeb61',
-      'product': 'map',
-      'terminal': 'DSM',
-      'clientId': 'DSM001'
+      'clientId': clientId
     };
     stompClient.connect(headers, connectCallback, errorCallback);
   }
@@ -59,7 +60,7 @@
       // showResponse(JSON.parse(response.body));
     });
     // 产品_租户id_对象id
-    stompClient.subscribe('/user/map_DSM_DSM001/to-user', function (response) {
+    stompClient.subscribe('/user/' + clientId + '/to-user', function (response) {
       showResponse(response.body);
       // showResponse(JSON.parse(response.body));
     });
@@ -85,7 +86,7 @@
   }
 
   // 向服务端发消息
-  function sendMessage(){
+  function sendMessage() {
     // send方法有三个参数，第一个是发送的地址，第二个参数是头信息，第三个参数是消息体
     stompClient.send("/app/reply", {"user": $("#user").val()}, $("#content").val());
   }

@@ -4,9 +4,9 @@ import cn.hutool.core.util.StrUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -21,23 +21,18 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 /**
  * WebSocket配置
  *
- * <br>	@EnableWebSocketMessageBroker
- * <br>		开启使用STOMP协议来传输基于代理(message broker)的消息,
- * <br>		此时浏览器支持使用@MessageMapping 就像支持@RequestMapping一样。
+ * <p>	@EnableWebSocketMessageBroker</p>
+ * <p>	开启使用STOMP协议来传输基于代理(message broker)的消息,</p>
+ * <p>	此时浏览器支持使用@MessageMapping 就像支持@RequestMapping一样。</p>
  *
  * @author tandk
- * @date 2019/2/1 10:42
+ * @date 2019/6/10 10:42
  */
 @Slf4j
 @Configuration
 @AllArgsConstructor
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-//  private CustomRemoteTokenServices tokenService
-
-  private StringRedisTemplate stringRedisTemplate;
-
-  private DeployProperties deployProperties;
 
   /**
    * controller 注册协议节点,并映射指定的URl
@@ -102,24 +97,19 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
       @Override
       public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+        // 连接请求
         if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
           String token = accessor.getFirstNativeHeader("token");
-          String product = accessor.getFirstNativeHeader("product");
-          String tenant = accessor.getFirstNativeHeader("tenant");
-          String terminal = accessor.getFirstNativeHeader("terminal");
           String clientId = accessor.getFirstNativeHeader("clientId");
-          log.info("webSocket preSend \n Message [{}] \n MessageChannel [{}]", message, channel);
+          log.info("webSocket preSend | Message [{}] | MessageChannel [{}]", message, channel);
           // 验证token
           if (StrUtil.isBlank(token)) {
             log.info("token验证失败[{}]", token);
             return null;
           }
-          if (deployProperties.isCluster()) {
-            // 集群模式下，保存客户端id与消息id到缓存
-            String simpSessionId = (String) accessor.getHeader(PushConstants.SIMP_SESSION_ID);
-            stringRedisTemplate.opsForList().leftPush(PushConstants.PUSH_SERVICE_CLIENTID + clientId, simpSessionId);
-            stringRedisTemplate.opsForHash().put(PushConstants.PUSH_SERVICE_SIMPSESSIONID, simpSessionId, clientId);
-          }
+          // 设置当前用户
+          WebSocketPrincipal webSocketPrincipal = new WebSocketPrincipal(clientId);
+          accessor.setUser(webSocketPrincipal);
         }
         return message;
       }
@@ -134,15 +124,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
        */
       @Override
       public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
-        log.info("webSocket postSend \n Message [{}] \n MessageChannel [{}] \n sent [{}]", message, channel, sent);
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-        // 集群模式下，断开连接后，删除缓存
-        if (deployProperties.isCluster() && accessor != null && StompCommand.DISCONNECT.equals(accessor.getCommand())) {
-          String simpSessionId = (String) accessor.getHeader(PushConstants.SIMP_SESSION_ID);
-          String clientId = (String) stringRedisTemplate.opsForHash().get(PushConstants.PUSH_SERVICE_SIMPSESSIONID,
-            simpSessionId);
-          stringRedisTemplate.opsForHash().delete(PushConstants.PUSH_SERVICE_SIMPSESSIONID, simpSessionId);
-          stringRedisTemplate.opsForList().remove(PushConstants.PUSH_SERVICE_CLIENTID + clientId, 0, simpSessionId);
+        if (accessor != null && !SimpMessageType.HEARTBEAT.equals(accessor.getMessageType())) {
+          log.info("webSocket postSend | Message [{}] | MessageChannel [{}] | sent [{}]", message, channel, sent);
         }
       }
 
@@ -158,8 +142,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
        */
       @Override
       public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, Exception ex) {
-        log.info("webSocket afterSendCompletion \n Message [{}] \n MessageChannel [{}] \n sent [{}]", message,
-          channel, sent);
+        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+        if (accessor != null && !SimpMessageType.HEARTBEAT.equals(accessor.getMessageType())) {
+          log.info("webSocket afterSendCompletion | Message [{}] | MessageChannel [{}] | sent [{}]", message,
+            channel, sent);
+        }
       }
 
       /**

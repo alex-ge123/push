@@ -1,7 +1,8 @@
 package com.wafersystems.virsical.push.controller;
 
+import cn.hutool.core.util.StrUtil;
+import com.wafersystems.virsical.push.common.PushConstants;
 import com.wafersystems.virsical.push.config.MessageManager;
-import com.wafersystems.virsical.push.config.PushConstants;
 import com.wafersystems.virsical.push.config.RabbitMqConfig;
 import com.wafersystems.virsical.push.model.MessageDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +30,7 @@ public class SendController {
   @Autowired
   private SimpUserRegistry defaultSimpUserRegistry;
 
-  @Autowired
+  @Autowired(required = false)
   private MessageManager messageManager;
 
   /**
@@ -42,12 +43,11 @@ public class SendController {
    */
   @GetMapping("send-fanout")
   public String sendFanout(@RequestParam String msgType, @RequestParam String clientId, @RequestParam String msg) {
+    if (StrUtil.isBlank(msg)) {
+      return "fail";
+    }
     log.info("群发广播消息: [{}]", msg);
-    MessageDTO messageDTO = new MessageDTO();
-    messageDTO.setMsgType(msgType);
-    messageDTO.setClientId(clientId);
-    messageDTO.setData(msg);
-    messageManager.sendFanout(RabbitMqConfig.FANOUT_EXCHANGE_PUSH, messageDTO);
+    messageManager.sendFanout(RabbitMqConfig.FANOUT_EXCHANGE_PUSH, new MessageDTO(1, clientId, msgType, "", msg));
     return "ok";
   }
 
@@ -59,7 +59,10 @@ public class SendController {
    */
   @GetMapping("send-to-all")
   public String convertAndSend(@RequestParam String msg) {
-    log.info("群发广播消息: [{}]", msg);
+    if (StrUtil.isBlank(msg)) {
+      return "fail";
+    }
+    log.info("当前用户数量: [{}]，群发广播消息: [{}]", defaultSimpUserRegistry.getUserCount(), msg);
     simpMessagingTemplate.convertAndSend(PushConstants.PUSH_ALL_DESTINATION, "群发广播消息：" + msg);
     return "ok";
   }
@@ -73,8 +76,10 @@ public class SendController {
    */
   @GetMapping("send-to-user")
   public String convertAndSendToUser(@RequestParam String userId, @RequestParam String msg) {
+    if (StrUtil.isBlank(userId) && StrUtil.isBlank(msg)) {
+      return "fail";
+    }
     log.info("私发订阅消息: [{}]", msg);
-    defaultSimpUserRegistry.getUserCount();
     simpMessagingTemplate.convertAndSendToUser(userId, PushConstants.PUSH_USER_DESTINATION, "私发订阅消息：" + msg);
     return "ok";
   }

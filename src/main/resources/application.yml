@@ -24,12 +24,6 @@ spring:
     name: virsical-push
   profiles:
     active: dev
-  # 集群模式部署，需要redis
-  redis:
-    password: wafer123
-    host: localhost
-    port: 6379
-    database: 1
   # 集群模式部署，需要rabbitmq
   rabbitmq:
     host: 192.168.0.68

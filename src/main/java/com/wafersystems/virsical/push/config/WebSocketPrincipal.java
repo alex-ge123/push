@@ -6,7 +6,7 @@ import java.security.Principal;
 
 /**
  * @author tandk
- * @date 2019/2/2 10:53
+ * @date 2019/6/2 10:53
  */
 @AllArgsConstructor
 public class WebSocketPrincipal implements Principal {
