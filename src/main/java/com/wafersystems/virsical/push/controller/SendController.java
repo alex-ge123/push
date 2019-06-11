@@ -12,6 +12,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -40,7 +41,7 @@ public class SendController {
    * @return ok
    */
   @GetMapping("send-fanout")
-  public String sendFanout(String msgType, String clientId, String msg) {
+  public String sendFanout(@RequestParam String msgType, @RequestParam String clientId, @RequestParam String msg) {
     log.info("群发广播消息: [{}]", msg);
     MessageDTO messageDTO = new MessageDTO();
     messageDTO.setMsgType(msgType);
@@ -57,7 +58,7 @@ public class SendController {
    * @return ok
    */
   @GetMapping("send-to-all")
-  public String convertAndSend(String msg) {
+  public String convertAndSend(@RequestParam String msg) {
     log.info("群发广播消息: [{}]", msg);
     simpMessagingTemplate.convertAndSend(PushConstants.PUSH_ALL_DESTINATION, "群发广播消息：" + msg);
     return "ok";
@@ -71,7 +72,7 @@ public class SendController {
    * @return ok
    */
   @GetMapping("send-to-user")
-  public String convertAndSendToUser(String userId, String msg) {
+  public String convertAndSendToUser(@RequestParam String userId, @RequestParam String msg) {
     log.info("私发订阅消息: [{}]", msg);
     defaultSimpUserRegistry.getUserCount();
     simpMessagingTemplate.convertAndSendToUser(userId, PushConstants.PUSH_USER_DESTINATION, "私发订阅消息：" + msg);
