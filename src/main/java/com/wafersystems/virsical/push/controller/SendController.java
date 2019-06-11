@@ -12,7 +12,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,7 +41,7 @@ public class SendController {
    * @param msg      消息内容
    * @return ok
    */
-  @GetMapping("send-fanout")
+  @PostMapping("send-fanout")
   public String sendFanout(@RequestParam String msgType, @RequestParam String clientId, @RequestParam String msg) {
     if (StrUtil.isBlank(msg)) {
       return "fail";
@@ -57,7 +57,7 @@ public class SendController {
    * @param msg 消息内容
    * @return ok
    */
-  @GetMapping("send-to-all")
+  @PostMapping("send-to-all")
   public String convertAndSend(@RequestParam String msg) {
     if (StrUtil.isBlank(msg)) {
       return "fail";
@@ -68,13 +68,13 @@ public class SendController {
   }
 
   /**
-   * 发送给某人
+   * 发布客户端消息
    *
    * @param userId 用户id
    * @param msg    消息内容
    * @return ok
    */
-  @GetMapping("send-to-user")
+  @PostMapping("send-to-user")
   public String convertAndSendToUser(@RequestParam String userId, @RequestParam String msg) {
     if (StrUtil.isBlank(userId) && StrUtil.isBlank(msg)) {
       return "fail";
