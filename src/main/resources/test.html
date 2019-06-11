@@ -5,6 +5,11 @@
   <meta name="content-type" content="text/html" charset="UTF-8">
 </head>
 <body>
+<div>发送消息<br>
+  内容：<input type="text" id="content">
+  接收人：<input type="text" id="user" value="map_DSM_DSM001">
+  <button onclick="sendMessage()">发送</button></div>
+<hr>
 <div>消息展示</div>
 <hr>
 <div>
@@ -30,6 +35,7 @@
     disconnect()
   }
 
+  // 建立连接
   function connect() {
     var socket = new SockJS('http://localhost:5200/ws'); //连接SockJS的endpoint名称为"ws"
     stompClient = Stomp.over(socket); //使用STMOP子协议的WebSocket客户端
@@ -39,7 +45,7 @@
       'token': '05d180d5-7e80-4d2f-9ac4-f74ec7fdeb61',
       'product': 'map',
       'terminal': 'DSM',
-      'clientId': 'DSM002'
+      'clientId': 'DSM001'
     };
     stompClient.connect(headers, connectCallback, errorCallback);
   }
@@ -72,9 +78,16 @@
     console.log("Disconnected");
   }
 
+  // 展示接收到消息内容
   function showResponse(message) {
     var response = $("#response");
     response.append("<div>" + message + "</div>&nbsp;&nbsp;&nbsp;&nbsp;");
+  }
+
+  // 向服务端发消息
+  function sendMessage(){
+    // send方法有三个参数，第一个是发送的地址，第二个参数是头信息，第三个参数是消息体
+    stompClient.send("/app/reply", {"user": $("#user").val()}, $("#content").val());
   }
 </script>
 </body>

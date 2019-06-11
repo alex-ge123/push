@@ -67,9 +67,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     te.setThreadNamePrefix("wss-heartbeat-thread-");
     te.initialize();
     /*
-     * 用户可以订阅来自"/topic"和"/user"的消息，
+     * 创建内存中的消息代理，其中包含一个或多个用于发送和接收消息的目标。
+     * 定义了两个目标地址前缀： topic和 user。
+     * 通过pub-sub模型将以 topic为前缀的消息传递到所有订阅客户端的目标地址。
      * 使用topic来达到群发效果，使用user进行一对一发送，
-     * 客户端只可以订阅这两个前缀的主题。
      *
      * enableSimpleBroker启用简单的消息代理，配置一个或多个代理的目标前缀
      * setHeartbeatValue设置后台向前台发送的心跳频率，这个不能单独设置，不然不起作用
@@ -80,6 +81,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
       .setTaskScheduler(te);
     // 配置用于标识用户目标的前缀。
     registry.setUserDestinationPrefix("/user");
+    // 定义前缀 app，用于过滤目标地址，这些地址在 Controller中被 @MessageMapping修饰的方法处理。
+    registry.setApplicationDestinationPrefixes("/app");
   }
 
   /**
