@@ -126,7 +126,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
        */
       @Override
       public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
-        log.info("webSocket postSend");
+//        log.info("webSocket postSend");
       }
 
       /**
@@ -141,7 +141,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
        */
       @Override
       public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, Exception ex) {
-        log.info("webSocket afterSendCompletion");
+//        log.info("webSocket afterSendCompletion");
       }
 
       /**
