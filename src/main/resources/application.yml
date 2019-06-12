@@ -18,6 +18,8 @@ push:
     #     业务服务通过mq发消息，推送服务监听消费消息，
     #     在缓存中查找终端id对应的推送服务ip:port，对应当前推送服务发布WebSocket消息。
     cluster: true
+  fanout:
+    queue: fanout.queue.push.${server.port}
 
 spring:
   application:
@@ -30,6 +32,11 @@ spring:
     port: 5672
     username: admin
     password: admin
+    listener:
+      simple:
+        retry:
+          enabled: true # 开启重试
+          max-attempts: 5 # 重试次数，默认3次
 
 logging:
   level:

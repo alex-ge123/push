@@ -6,6 +6,7 @@ import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,9 +31,10 @@ public class RabbitMqConfig {
     return new Jackson2JsonMessageConverter();
   }
 
-  public static final String FANOUT_EXCHANGE_PUSH = "fanout.exchange.push";
+  public static final String PUSH_FANOUT_EXCHANGE = "push.fanout.exchange";
 
-  public static final String FANOUT_QUEUE_PUSH = "fanout.queue.push";
+  @Value("${push.fanout.queue}")
+  public String pushFanoutQueue;
 
   /**
    * Fanout模式
@@ -42,8 +44,8 @@ public class RabbitMqConfig {
    * @return FanoutExchange
    */
   @Bean
-  public FanoutExchange fanoutExchangePush() {
-    return new FanoutExchange(FANOUT_EXCHANGE_PUSH);
+  public FanoutExchange fanoutExchange() {
+    return new FanoutExchange(PUSH_FANOUT_EXCHANGE);
   }
 
   /**
@@ -52,8 +54,8 @@ public class RabbitMqConfig {
    * @return Queue
    */
   @Bean
-  public Queue fanoutQueuePush() {
-    return new Queue(FANOUT_QUEUE_PUSH);
+  public Queue fanoutQueue() {
+    return new Queue(pushFanoutQueue);
   }
 
   /**
@@ -62,8 +64,8 @@ public class RabbitMqConfig {
    * @return Binding
    */
   @Bean
-  public Binding fanoutBindingPush() {
-    return BindingBuilder.bind(fanoutQueuePush()).to(fanoutExchangePush());
+  public Binding fanoutBinding() {
+    return BindingBuilder.bind(fanoutQueue()).to(fanoutExchange());
   }
 
 }

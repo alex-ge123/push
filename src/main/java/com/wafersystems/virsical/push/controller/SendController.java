@@ -47,7 +47,7 @@ public class SendController {
       return "fail";
     }
     log.info("群发广播消息: [{}]", msg);
-    messageManager.sendFanout(RabbitMqConfig.FANOUT_EXCHANGE_PUSH, new MessageDTO(1, clientId, msgType, "", msg));
+    messageManager.sendFanout(RabbitMqConfig.PUSH_FANOUT_EXCHANGE, new MessageDTO(1, clientId, msgType, "", msg));
     return "ok";
   }
 
