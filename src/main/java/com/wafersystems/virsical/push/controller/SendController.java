@@ -92,7 +92,9 @@ public class SendController {
   @MessageMapping("/reply")
   public void reply(@Payload String message, @Header String user) {
     log.info("客户端发送消息: [{}]", message);
-    simpMessagingTemplate.convertAndSendToUser(user, PushConstants.PUSH_USER_DESTINATION, "客户端私发消息：" + message);
+    if (StrUtil.isNotBlank(user) && StrUtil.isNotBlank(message)) {
+      simpMessagingTemplate.convertAndSendToUser(user, PushConstants.PUSH_USER_DESTINATION, "客户端私发消息：" + message);
+    }
   }
 
 }

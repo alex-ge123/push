@@ -87,8 +87,14 @@
 
   // 向服务端发消息
   function sendMessage() {
-    // send方法有三个参数，第一个是发送的地址，第二个参数是头信息，第三个参数是消息体
-    stompClient.send("/app/reply", {"user": $("#user").val()}, $("#content").val());
+    var user =$("#user").val();
+    var msg =$("#content").val();
+    if (user == '' || msg == '') {
+      alert("用户或内容不能为空");
+    } else {
+      // send方法有三个参数，第一个是发送的地址，第二个参数是头信息，第三个参数是消息体
+      stompClient.send("/app/reply", {"user": user}, msg);
+    }
   }
 </script>
 </body>

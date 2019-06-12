@@ -17,6 +17,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 
 /**
  * WebSocket配置
@@ -42,7 +43,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   @Override
   public void registerStompEndpoints(StompEndpointRegistry registry) {
     // 注册一个STOMP协议的endpoint[/ws]，允许跨域访问，并指定 SockJS协议
-    registry.addEndpoint("/ws").setAllowedOrigins("*").withSockJS();
+    registry.addEndpoint("/ws").setAllowedOrigins("*").withSockJS().setWebSocketEnabled(true);
   }
 
   /**
@@ -61,7 +62,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     // 定义服务端心跳间隔时间，单位毫秒
     // 第一个参数:server能保证的发送心跳的最小间隔, 如果是0代表server不发送心跳.
     // 第二个参数:server希望收到client心跳的间隔, 如果是0代表server不希望收到client的心跳.
-    long[] heartBeat = {10000L, 10000L};
+    long[] heartBeat = {20000L, 20000L};
     /*
      * 创建内存中的消息代理，其中包含一个或多个用于发送和接收消息的目标。
      * 定义了两个目标地址前缀： topic和 user。
@@ -82,9 +83,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   }
 
   /**
-   * 配置客户端进入通道
+   * 配置用于到WebSocket客户端的入站消息的MessageChannel。
    *
-   * @param registration 通道注册
+   * @param registration 通道注册表
    */
   @Override
   public void configureClientInboundChannel(ChannelRegistration registration) {
@@ -190,5 +191,33 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         log.info("webSocket afterReceiveCompletion");
       }
     });
+
+    // 配置corePoolSize核心线程数, maxPoolSize最大线程数, queueCapacity队列容积
+    registration.taskExecutor().corePoolSize(32).maxPoolSize(200).queueCapacity(10000);
+  }
+
+  /**
+   * 配置用于到WebSocket客户端的出站消息的MessageChannel。
+   * <p>默认情况下，通道由大小为1的线程池支持。建议为生产使用自定义线程池设置</p>
+   *
+   * @param registration 通道注册表
+   */
+  @Override
+  public void configureClientOutboundChannel(ChannelRegistration registration) {
+    // 配置corePoolSize核心线程数, maxPoolSize最大线程数, queueCapacity队列容积
+    registration.taskExecutor().corePoolSize(100).maxPoolSize(400).queueCapacity(20000);
+  }
+
+  /**
+   * Configure options related to the processing of messages received from and
+   * sent to WebSocket clients.
+   *
+   * @param registry WebSocket传输注册表
+   */
+  @Override
+  public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
+    registry
+      .setSendTimeLimit(15 * 1000)
+      .setSendBufferSizeLimit(512 * 1024);
   }
 }

@@ -25,7 +25,7 @@ public class Receiver {
 
   private final SimpMessagingTemplate simpMessagingTemplate;
 
-  private static Boolean isFirst = true;
+  private Boolean isFirst = true;
 
   /**
    * 监听推送消息队列
@@ -48,7 +48,7 @@ public class Receiver {
         simpMessagingTemplate.convertAndSend(PushConstants.PUSH_ALL_DESTINATION, messageDTO.getData());
       } else if (one.equals(messageDTO.getMsgType())) {
         simpMessagingTemplate.convertAndSendToUser(messageDTO.getClientId(), PushConstants.PUSH_USER_DESTINATION,
-          messageDTO.getData());
+            messageDTO.getData());
       } else {
         log.info("消息类型未识别，无法推送");
       }
