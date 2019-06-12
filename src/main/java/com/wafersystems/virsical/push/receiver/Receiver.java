@@ -34,16 +34,12 @@ public class Receiver {
    */
   @RabbitListener(queues = "${push.fanout.queue}")
   public void receiveTopicPush(@Payload String message) {
+    log.info("【push.fanout.queue监听到消息】{}", message);
     try {
-      log.info("【push.fanout.queue监听到消息】{}", message);
       // 服务首次消费延时5秒，为了避免在服务刚启动后，WebSocket连接还未建立的情况下，进行消费
       if (isFirst) {
-        try {
-          Thread.sleep(5000);
-          isFirst = false;
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
+        Thread.sleep(5000);
+        isFirst = false;
       }
       MessageDTO messageDTO = JSON.parseObject(message, MessageDTO.class);
       String all = "ALL";
@@ -53,6 +49,8 @@ public class Receiver {
       } else if (one.equals(messageDTO.getMsgType())) {
         simpMessagingTemplate.convertAndSendToUser(messageDTO.getClientId(), PushConstants.PUSH_USER_DESTINATION,
           messageDTO.getData());
+      } else {
+        log.info("消息类型未识别，无法推送");
       }
     } catch (Exception e) {
       log.info("消息监听处理异常", e);
