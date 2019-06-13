@@ -36,18 +36,19 @@ public class SendController {
   /**
    * 发布MQ广播测试推送服务监听消费推送
    *
+   * @param product  产品名称
    * @param msgType  消息类型
    * @param clientId 终端id
    * @param msg      消息内容
    * @return ok
    */
   @PostMapping("send-fanout")
-  public String sendFanout(@RequestParam String msgType, @RequestParam String clientId, @RequestParam String msg) {
+  public String sendFanout(@RequestParam String product, @RequestParam String msgType, @RequestParam String clientId, @RequestParam String msg) {
     if (StrUtil.isBlank(msg)) {
       return "fail";
     }
     log.info("群发广播消息: [{}]", msg);
-    messageManager.sendFanout(RabbitMqConfig.PUSH_FANOUT_EXCHANGE, new MessageDTO(1, clientId, msgType, "", msg));
+    messageManager.sendFanout(RabbitMqConfig.PUSH_FANOUT_EXCHANGE, new MessageDTO(1, clientId, product, msgType, "", msg));
     return "ok";
   }
 
@@ -70,17 +71,17 @@ public class SendController {
   /**
    * 发布客户端消息
    *
-   * @param userId 用户id
-   * @param msg    消息内容
+   * @param clientId 终端id
+   * @param msg      消息内容
    * @return ok
    */
   @PostMapping("send-to-user")
-  public String convertAndSendToUser(@RequestParam String userId, @RequestParam String msg) {
-    if (StrUtil.isBlank(userId) && StrUtil.isBlank(msg)) {
+  public String convertAndSendToUser(@RequestParam String clientId, @RequestParam String msg) {
+    if (StrUtil.isBlank(clientId) && StrUtil.isBlank(msg)) {
       return "fail";
     }
     log.info("私发订阅消息: [{}]", msg);
-    simpMessagingTemplate.convertAndSendToUser(userId, PushConstants.PUSH_USER_DESTINATION, "私发订阅消息：" + msg);
+    simpMessagingTemplate.convertAndSendToUser(clientId, PushConstants.PUSH_USER_DESTINATION, "私发订阅消息：" + msg);
     return "ok";
   }
 

@@ -25,12 +25,17 @@ public class MessageDTO {
   private Long msgTime;
 
   /**
+   * 消息所属产品（会议-smartmeeting，工位-smartworkspace，地图-map）
+   */
+  private String product;
+
+  /**
    * 消息类型（ONE单条(点对点)|BATCH批量|ALL(广播)）
    */
   private String msgType;
 
   /**
-   * 消息动作（ADD|DELETE|UPDATE|NONE: 增|删|改|无）
+   * 消息动作（ADD|DELETE|UPDATE|SHOW|NONE: 增|删|改|展示|无）
    */
   private String msgAction;
 
@@ -49,22 +54,28 @@ public class MessageDTO {
    */
   private Serializable data;
 
+  public MessageDTO() {
+  }
+
   /**
    * constructor
    *
    * @param userId    userId
    * @param clientId  clientId
-   * @param msgType   消息类型（ONE单条(点对点)|BATCH批量(广播)）
+   * @param product   消息所属产品（会议-smartmeeting，工位-smartworkspace，地图-map）
+   * @param msgType   消息类型（ONE单条(点对点)|BATCH批量|ALL(广播)）
    * @param msgAction 消息动作（ADD|DELETE|UPDATE|NONE: 增|删|改|无）
    * @param data      消息体
    */
-  public MessageDTO(Integer userId, String clientId, String msgType, String msgAction, Serializable data) {
-    this.msgType = msgType;
+  public MessageDTO(Integer userId, String clientId, String product, String msgType, String msgAction,
+                    Serializable data) {
     this.msgId = UUID.randomUUID().toString();
     this.msgTime = System.currentTimeMillis();
-    this.msgAction = msgAction;
     this.userId = userId;
     this.clientId = clientId;
+    this.product = product;
+    this.msgType = msgType;
+    this.msgAction = msgAction;
     this.data = data;
   }
 }
