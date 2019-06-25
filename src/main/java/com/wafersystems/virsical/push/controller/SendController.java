@@ -1,5 +1,6 @@
 package com.wafersystems.virsical.push.controller;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.wafersystems.virsical.push.common.PushConstants;
 import com.wafersystems.virsical.push.config.MessageManager;
@@ -12,6 +13,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,6 +36,15 @@ public class SendController {
   private MessageManager messageManager;
 
   /**
+   * 定时广播在线人数
+   */
+  @Scheduled(fixedDelay = 10000)
+  public void sendMessages() {
+    simpMessagingTemplate.convertAndSend(PushConstants.PUSH_ALL_DESTINATION,
+      "[" + DateUtil.now() + "]当前在线用户数：" + defaultSimpUserRegistry.getUserCount() + defaultSimpUserRegistry.getUsers().toString());
+  }
+
+  /**
    * 发布MQ广播测试推送服务监听消费推送
    *
    * @param product  产品名称
@@ -43,12 +54,14 @@ public class SendController {
    * @return ok
    */
   @PostMapping("send-fanout")
-  public String sendFanout(@RequestParam String product, @RequestParam String msgType, @RequestParam String clientId, @RequestParam String msg) {
+  public String sendFanout(@RequestParam String product, @RequestParam String msgType,
+                           @RequestParam String clientId, @RequestParam String msg) {
     if (StrUtil.isBlank(msg)) {
       return "fail";
     }
     log.info("群发广播消息: [{}]", msg);
-    messageManager.sendFanout(RabbitMqConfig.PUSH_FANOUT_EXCHANGE, new MessageDTO(1, clientId, product, msgType, "", msg));
+    messageManager.sendFanout(RabbitMqConfig.PUSH_FANOUT_EXCHANGE,
+      new MessageDTO(1, clientId, product, msgType, "", msg));
     return "ok";
   }
 
@@ -58,13 +71,13 @@ public class SendController {
    * @param msg 消息内容
    * @return ok
    */
-  @PostMapping("send-to-all")
-  public String convertAndSend(@RequestParam String msg) {
+  @PostMapping("send-all")
+  public String sendAll(@RequestParam String msg) {
     if (StrUtil.isBlank(msg)) {
       return "fail";
     }
     log.info("当前用户数量: [{}]，群发广播消息: [{}]", defaultSimpUserRegistry.getUserCount(), msg);
-    simpMessagingTemplate.convertAndSend(PushConstants.PUSH_ALL_DESTINATION, "群发广播消息：" + msg);
+    simpMessagingTemplate.convertAndSend(PushConstants.PUSH_ALL_DESTINATION, "[" + DateUtil.now() + "]群发广播消息：" + msg);
     return "ok";
   }
 
@@ -75,13 +88,14 @@ public class SendController {
    * @param msg      消息内容
    * @return ok
    */
-  @PostMapping("send-to-user")
-  public String convertAndSendToUser(@RequestParam String clientId, @RequestParam String msg) {
+  @PostMapping("send-one")
+  public String sendOne(@RequestParam String clientId, @RequestParam String msg) {
     if (StrUtil.isBlank(clientId) && StrUtil.isBlank(msg)) {
       return "fail";
     }
-    log.info("私发订阅消息: [{}]", msg);
-    simpMessagingTemplate.convertAndSendToUser(clientId, PushConstants.PUSH_USER_DESTINATION, "私发订阅消息：" + msg);
+    log.info("发送指定用户[{}]订阅消息[{}]", clientId, msg);
+    simpMessagingTemplate.convertAndSendToUser(clientId, PushConstants.PUSH_ONE_DESTINATION,
+      "[" + DateUtil.now() + "]私发订阅消息：" + msg);
     return "ok";
   }
 
@@ -89,12 +103,14 @@ public class SendController {
    * 客户端发送消息到服务端，服务端再推送给指定人
    *
    * @param message 消息内容
+   * @param user    用户
    */
-  @MessageMapping("/reply")
-  public void reply(@Payload String message, @Header String user) {
+  @MessageMapping("client-send-one")
+  public void clientSendOne(@Payload String message, @Header String user) {
     log.info("客户端发送消息: [{}]", message);
     if (StrUtil.isNotBlank(user) && StrUtil.isNotBlank(message)) {
-      simpMessagingTemplate.convertAndSendToUser(user, PushConstants.PUSH_USER_DESTINATION, "客户端私发消息：" + message);
+      simpMessagingTemplate.convertAndSendToUser(user, PushConstants.PUSH_ONE_DESTINATION,
+        "[" + DateUtil.now() + "]客户端私发消息：" + message);
     }
   }
 

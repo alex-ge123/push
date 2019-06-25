@@ -47,7 +47,7 @@ public class Receiver {
       if (all.equals(messageDTO.getMsgType())) {
         simpMessagingTemplate.convertAndSend(PushConstants.PUSH_ALL_DESTINATION, messageDTO.getData());
       } else if (one.equals(messageDTO.getMsgType())) {
-        simpMessagingTemplate.convertAndSendToUser(messageDTO.getClientId(), PushConstants.PUSH_USER_DESTINATION,
+        simpMessagingTemplate.convertAndSendToUser(messageDTO.getClientId(), PushConstants.PUSH_ONE_DESTINATION,
             messageDTO.getData());
       } else {
         log.info("消息类型未识别，无法推送");

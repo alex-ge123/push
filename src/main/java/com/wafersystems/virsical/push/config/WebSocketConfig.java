@@ -13,6 +13,7 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -31,6 +32,7 @@ import org.springframework.web.socket.config.annotation.WebSocketTransportRegist
  */
 @Slf4j
 @Configuration
+@EnableScheduling
 @AllArgsConstructor
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
@@ -73,7 +75,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      * setHeartbeatValue设置后台向前台发送的心跳频率，这个不能单独设置，不然不起作用
      * 配合后面setTaskScheduler才可以生效，使用一个线程发送心跳。
      */
-    registry.enableSimpleBroker("/topic", "/user")
+    registry.enableSimpleBroker("/topic", "/one")
       .setHeartbeatValue(heartBeat)
       .setTaskScheduler(te);
     // 配置用于标识用户目标的前缀。
@@ -129,6 +131,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         if (accessor != null && !SimpMessageType.HEARTBEAT.equals(accessor.getMessageType())) {
           log.info("webSocket postSend | Message [{}] | MessageChannel [{}] | sent [{}]", message, channel, sent);
+          if (SimpMessageType.SUBSCRIBE.equals(accessor.getMessageType())) {
+            log.info("当前终端：{}", accessor.getUser().getName());
+          }
         }
       }
 

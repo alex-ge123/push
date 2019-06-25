@@ -11,10 +11,10 @@ public interface PushConstants {
   /**
    * 广播群发，推送所有目的地
    */
-  String PUSH_ALL_DESTINATION = "/topic/to-all";
+  String PUSH_ALL_DESTINATION = "/topic/all";
 
   /**
-   * 广播订阅，推送用户目的地
+   * 广播订阅，推送指定用户目的地
    */
-  String PUSH_USER_DESTINATION = "/to-user";
+  String PUSH_ONE_DESTINATION = "/one";
 }
