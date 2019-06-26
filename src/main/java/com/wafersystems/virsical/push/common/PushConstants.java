@@ -1,11 +1,14 @@
 package com.wafersystems.virsical.push.common;
 
+import lombok.experimental.UtilityClass;
+
 /**
  * 常量
  *
  * @author tandk
  * @date 2019/6/10 10:45
  */
+@UtilityClass
 public final class PushConstants {
 
   /**
