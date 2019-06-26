@@ -17,3 +17,10 @@
 - application.yml中配置RabbitMQ
 
 ![](doc/cluster.png)
+
+
+#### 多产品接入说明
+> 当某个前端页面集成多个产品的业务，均需要通过WebSocket推送消息。
+> 通过页面创建一个WebSocket链接，订阅不同产品广播消息的Topic，来实现。
+
+![](doc/map.png)

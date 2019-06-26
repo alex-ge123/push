@@ -14,6 +14,11 @@ public interface PushConstants {
   String PUSH_ALL_DESTINATION = "/topic/all";
 
   /**
+   * 广播群发，推送指定产品目的地
+   */
+  String PUSH_PRODUCT_DESTINATION = "/topic/";
+
+  /**
    * 广播订阅，推送指定用户目的地
    */
   String PUSH_ONE_DESTINATION = "/one";

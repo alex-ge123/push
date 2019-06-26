@@ -14,6 +14,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,7 +54,7 @@ public class SendController {
    * @param msg      消息内容
    * @return ok
    */
-  @PostMapping("send-fanout")
+  @PostMapping("/send/fanout")
   public String sendFanout(@RequestParam String product, @RequestParam String msgType,
                            @RequestParam String clientId, @RequestParam String msg) {
     if (StrUtil.isBlank(msg)) {
@@ -71,7 +72,7 @@ public class SendController {
    * @param msg 消息内容
    * @return ok
    */
-  @PostMapping("send-all")
+  @PostMapping("/send/all")
   public String sendAll(@RequestParam String msg) {
     if (StrUtil.isBlank(msg)) {
       return "fail";
@@ -82,13 +83,30 @@ public class SendController {
   }
 
   /**
+   * 群发广播消息（指定产品主题）
+   *
+   * @param msg 消息内容
+   * @return ok
+   */
+  @PostMapping("/send/{product}")
+  public String sendAll(@RequestParam String msg, @PathVariable String product) {
+    if (StrUtil.isBlank(msg)) {
+      return "fail";
+    }
+    String payload = "[" + DateUtil.now() + "]群发广播消息（指定产品[" + product + "]主题）：" + msg;
+    log.info(payload);
+    simpMessagingTemplate.convertAndSend(PushConstants.PUSH_PRODUCT_DESTINATION + product, payload);
+    return "ok";
+  }
+
+  /**
    * 发布客户端消息
    *
    * @param clientId 终端id
    * @param msg      消息内容
    * @return ok
    */
-  @PostMapping("send-one")
+  @PostMapping("/send/one")
   public String sendOne(@RequestParam String clientId, @RequestParam String msg) {
     if (StrUtil.isBlank(clientId) && StrUtil.isBlank(msg)) {
       return "fail";
@@ -105,7 +123,7 @@ public class SendController {
    * @param message 消息内容
    * @param user    用户
    */
-  @MessageMapping("client-send-one")
+  @MessageMapping("/client-send/one")
   public void clientSendOne(@Payload String message, @Header String user) {
     log.info("客户端发送消息: [{}]", message);
     if (StrUtil.isNotBlank(user) && StrUtil.isNotBlank(message)) {
