@@ -93,6 +93,12 @@
       <artifactId>fastjson</artifactId>
       <version>${fastjson.version}</version>
     </dependency>
+    <!--微服务公共依赖包-->
+    <dependency>
+      <groupId>com.wafersystems</groupId>
+      <artifactId>virsical-common-security</artifactId>
+      <version>3.1.2</version>
+    </dependency>
   </dependencies>
 
   <build>

@@ -1,0 +1,31 @@
+server:
+  port: 5200
+
+spring:
+  application:
+    name: virsical-push
+  profiles:
+    active: dev
+  # 配置中心
+  cloud:
+    config:
+      # 失败快速响应
+      fail-fast: true
+      name: ${spring.application.name}
+      profile: ${spring.profiles.active}
+      # 指定config server地址
+      uri: http://wafer:wafer@localhost:8888
+
+# 注册中心配置
+eureka:
+  instance:
+    prefer-ip-address: true
+    # eureka client发送心跳给server端的频率，默认是30秒，也就是每30秒会向Eureka Server发起Renew更新操作。
+    leaseRenewalIntervalInSeconds: 5
+    # 服务失效时间。默认是90秒，也就是如果Eureka Server在90秒内没有接收到来自ServiceProvider的Renew操作，就会把Service Provider剔除。
+    leaseExpirationDurationInSeconds: 10
+  client:
+    service-url:
+      defaultZone: http://wafer:wafer@localhost:8761/eureka/
+    # 表示eureka client间隔多久去拉取服务注册信息，默认为30秒
+    registry-fetch-interval-seconds: 5
