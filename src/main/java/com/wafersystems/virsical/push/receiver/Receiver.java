@@ -43,9 +43,13 @@ public class Receiver {
       }
       MessageDTO messageDTO = JSON.parseObject(message, MessageDTO.class);
       String all = "ALL";
+      String batch = "BATCH";
       String one = "ONE";
       if (all.equals(messageDTO.getMsgType())) {
         simpMessagingTemplate.convertAndSend(PushConstants.PUSH_ALL_DESTINATION, messageDTO.getData());
+      } else if (batch.equals(messageDTO.getMsgType())) {
+        simpMessagingTemplate.convertAndSend(PushConstants.PUSH_TOPIC_DESTINATION + messageDTO.getProduct(),
+            messageDTO.getData());
       } else if (one.equals(messageDTO.getMsgType())) {
         simpMessagingTemplate.convertAndSendToUser(messageDTO.getClientId(), PushConstants.PUSH_ONE_DESTINATION,
             messageDTO.getData());

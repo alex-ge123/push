@@ -19,7 +19,7 @@ public final class PushConstants {
   /**
    * 广播群发，推送指定产品目的地
    */
-  public static final String PUSH_PRODUCT_DESTINATION = "/topic/";
+  public static final String PUSH_TOPIC_DESTINATION = "/topic/";
 
   /**
    * 广播订阅，推送指定用户目的地

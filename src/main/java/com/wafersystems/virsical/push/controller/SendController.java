@@ -99,7 +99,7 @@ public class SendController {
     }
     String payload = "[" + DateUtil.now() + "]群发广播消息（指定产品[" + product + "]主题）：" + msg;
     log.info(payload);
-    simpMessagingTemplate.convertAndSend(PushConstants.PUSH_PRODUCT_DESTINATION + product, payload);
+    simpMessagingTemplate.convertAndSend(PushConstants.PUSH_TOPIC_DESTINATION + product, payload);
     return R.ok();
   }
 
