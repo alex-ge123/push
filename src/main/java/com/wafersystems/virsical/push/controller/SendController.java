@@ -2,6 +2,8 @@ package com.wafersystems.virsical.push.controller;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import com.wafersystems.virsical.common.core.util.R;
+import com.wafersystems.virsical.common.security.annotation.Inner;
 import com.wafersystems.virsical.push.common.PushConstants;
 import com.wafersystems.virsical.push.config.MessageManager;
 import com.wafersystems.virsical.push.config.RabbitMqConfig;
@@ -14,7 +16,6 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -52,51 +53,54 @@ public class SendController {
    * @param msgType  消息类型
    * @param clientId 终端id
    * @param msg      消息内容
-   * @return ok
+   * @return R
    */
   @PostMapping("/send/fanout")
-  public String sendFanout(@RequestParam String product, @RequestParam String msgType,
+  public R sendFanout(@RequestParam String product, @RequestParam String msgType,
                            @RequestParam String clientId, @RequestParam String msg) {
     if (StrUtil.isBlank(msg)) {
-      return "fail";
+      return R.fail();
     }
     log.info("群发广播消息: [{}]", msg);
     messageManager.sendFanout(RabbitMqConfig.PUSH_FANOUT_EXCHANGE,
       new MessageDTO(1, clientId, product, msgType, "", msg));
-    return "ok";
+    return R.ok();
   }
 
   /**
    * 群发广播消息
    *
    * @param msg 消息内容
-   * @return ok
+   * @return R
    */
+  @Inner
   @PostMapping("/send/all")
-  public String sendAll(@RequestParam String msg) {
+  public R sendAll(@RequestParam String msg) {
     if (StrUtil.isBlank(msg)) {
-      return "fail";
+      return R.fail();
     }
     log.info("当前用户数量: [{}]，群发广播消息: [{}]", defaultSimpUserRegistry.getUserCount(), msg);
     simpMessagingTemplate.convertAndSend(PushConstants.PUSH_ALL_DESTINATION, "[" + DateUtil.now() + "]群发广播消息：" + msg);
-    return "ok";
+    return R.ok();
   }
 
   /**
    * 群发广播消息（指定产品主题）
    *
-   * @param msg 消息内容
-   * @return ok
+   * @param product product
+   * @param msg     消息内容
+   * @return R
    */
-  @PostMapping("/send/{product}")
-  public String sendAll(@RequestParam String msg, @PathVariable String product) {
+  @Inner
+  @PostMapping("/send/topic")
+  public R sendTopic(@RequestParam String product, @RequestParam String msg) {
     if (StrUtil.isBlank(msg)) {
-      return "fail";
+      return R.fail();
     }
     String payload = "[" + DateUtil.now() + "]群发广播消息（指定产品[" + product + "]主题）：" + msg;
     log.info(payload);
     simpMessagingTemplate.convertAndSend(PushConstants.PUSH_PRODUCT_DESTINATION + product, payload);
-    return "ok";
+    return R.ok();
   }
 
   /**
@@ -104,17 +108,18 @@ public class SendController {
    *
    * @param clientId 终端id
    * @param msg      消息内容
-   * @return ok
+   * @return R
    */
+  @Inner
   @PostMapping("/send/one")
-  public String sendOne(@RequestParam String clientId, @RequestParam String msg) {
+  public R sendOne(@RequestParam String clientId, @RequestParam String msg) {
     if (StrUtil.isBlank(clientId) && StrUtil.isBlank(msg)) {
-      return "fail";
+      return R.fail();
     }
     log.info("发送指定用户[{}]订阅消息[{}]", clientId, msg);
     simpMessagingTemplate.convertAndSendToUser(clientId, PushConstants.PUSH_ONE_DESTINATION,
       "[" + DateUtil.now() + "]私发订阅消息：" + msg);
-    return "ok";
+    return R.ok();
   }
 
   /**
