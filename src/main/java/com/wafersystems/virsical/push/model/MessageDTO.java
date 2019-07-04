@@ -1,5 +1,6 @@
 package com.wafersystems.virsical.push.model;
 
+import com.wafersystems.virsical.common.core.tenant.TenantContextHolder;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -76,6 +77,21 @@ public class MessageDTO {
     this.product = product;
     this.msgType = msgType;
     this.msgAction = msgAction;
+    this.data = data;
+  }
+
+  /**
+   * constructor
+   * @param msgType 消息类型（ONE单条|BATCH批量）
+   * @param msgAction 消息动作（ADD|DELETE|UPDATE: 增删改）
+   * @param data 消息体
+   */
+  public MessageDTO(String msgType, String msgAction, Serializable data) {
+    this.msgType = msgType;
+    this.msgId = UUID.randomUUID().toString();
+    this.msgTime = System.currentTimeMillis();
+    this.msgAction = msgAction;
+    this.userId = TenantContextHolder.getUserId();
     this.data = data;
   }
 }

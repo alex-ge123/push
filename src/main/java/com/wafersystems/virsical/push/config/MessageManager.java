@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
  * @date 2019/4/3 18:21
  */
 @Configuration
-@ConditionalOnExpression("${push.service.cluster} == true")
+@ConditionalOnExpression("${push.service.cluster}")
 public class MessageManager {
   private final AmqpTemplate rabbitTemplate;
 

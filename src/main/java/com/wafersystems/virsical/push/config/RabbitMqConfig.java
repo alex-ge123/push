@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
  * @date 2019/6/11 11:09
  */
 @Configuration
-@ConditionalOnExpression("${push.service.cluster} == true")
+@ConditionalOnExpression("${push.service.cluster}")
 public class RabbitMqConfig {
 
   /**

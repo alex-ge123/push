@@ -43,7 +43,9 @@ public class SendController {
   @Scheduled(fixedDelay = 10000)
   public void sendMessages() {
     simpMessagingTemplate.convertAndSend(PushConstants.PUSH_ALL_DESTINATION,
-      "[" + DateUtil.now() + "]当前在线用户数：" + defaultSimpUserRegistry.getUserCount() + defaultSimpUserRegistry.getUsers().toString());
+        "[" + DateUtil.now() + "]当前在线用户数："
+        + defaultSimpUserRegistry.getUserCount()
+        + defaultSimpUserRegistry.getUsers().toString());
   }
 
   /**
