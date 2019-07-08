@@ -1,5 +1,5 @@
 server:
-  port: 5200
+  port: 8009
 
 spring:
   application:
@@ -14,7 +14,7 @@ spring:
       name: ${spring.application.name}
       profile: ${spring.profiles.active}
       # 指定config server地址
-      uri: http://wafer:wafer@localhost:8888
+      uri: http://wafer:wafer@localhost:8002
 
 # 注册中心配置
 eureka:
@@ -26,6 +26,6 @@ eureka:
     leaseExpirationDurationInSeconds: 10
   client:
     service-url:
-      defaultZone: http://wafer:wafer@localhost:8761/eureka/
+      defaultZone: http://wafer:wafer@localhost:8001/eureka/
     # 表示eureka client间隔多久去拉取服务注册信息，默认为30秒
     registry-fetch-interval-seconds: 5
