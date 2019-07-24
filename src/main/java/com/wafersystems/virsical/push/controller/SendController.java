@@ -2,6 +2,7 @@ package com.wafersystems.virsical.push.controller;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import com.wafersystems.virsical.common.core.constant.PushMqConstants;
 import com.wafersystems.virsical.common.core.util.R;
 import com.wafersystems.virsical.common.security.annotation.Inner;
 import com.wafersystems.virsical.push.common.PushConstants;
@@ -64,7 +65,7 @@ public class SendController {
       return R.fail();
     }
     log.info("群发广播消息: [{}]", msg);
-    messageManager.sendFanout(RabbitMqConfig.PUSH_FANOUT_EXCHANGE,
+    messageManager.sendFanout(PushMqConstants.EXCHANGE_FANOUT_PUSH,
       new MessageDTO(1, clientId, product, msgType, "", msg));
     return R.ok();
   }
