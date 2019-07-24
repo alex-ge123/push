@@ -1,5 +1,6 @@
 package com.wafersystems.virsical.push.config;
 
+import com.wafersystems.virsical.common.core.constant.PushMqConstants;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.FanoutExchange;
@@ -31,8 +32,6 @@ public class RabbitMqConfig {
     return new Jackson2JsonMessageConverter();
   }
 
-  public static final String PUSH_FANOUT_EXCHANGE = "push.fanout.exchange";
-
   @Value("${push.fanout.queue}")
   public String pushFanoutQueue;
 
@@ -45,7 +44,7 @@ public class RabbitMqConfig {
    */
   @Bean
   public FanoutExchange fanoutExchange() {
-    return new FanoutExchange(PUSH_FANOUT_EXCHANGE);
+    return new FanoutExchange(PushMqConstants.EXCHANGE_FANOUT_PUSH);
   }
 
   /**
