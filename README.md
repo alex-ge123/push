@@ -12,9 +12,8 @@
 
 ![](doc/one.png)
 
-#### 集群部署（需要RabbitMQ支持）
+#### 集群部署
 - application.yml中配置属性push.service.cluster = true
-- application.yml中配置RabbitMQ
 
 ![](doc/cluster.png)
 

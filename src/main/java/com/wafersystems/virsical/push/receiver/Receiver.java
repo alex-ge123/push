@@ -1,6 +1,7 @@
 package com.wafersystems.virsical.push.receiver;
 
 import com.alibaba.fastjson.JSON;
+import com.wafersystems.virsical.common.core.constant.enums.MsgTypeEnum;
 import com.wafersystems.virsical.push.common.PushConstants;
 import com.wafersystems.virsical.push.model.MessageDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -42,15 +43,12 @@ public class Receiver {
         isFirst = false;
       }
       MessageDTO messageDTO = JSON.parseObject(message, MessageDTO.class);
-      String all = "ALL";
-      String batch = "BATCH";
-      String one = "ONE";
-      if (all.equals(messageDTO.getMsgType())) {
+      if (MsgTypeEnum.ALL.name().equals(messageDTO.getMsgType())) {
         simpMessagingTemplate.convertAndSend(PushConstants.PUSH_ALL_DESTINATION, messageDTO.getData());
-      } else if (batch.equals(messageDTO.getMsgType())) {
+      } else if (MsgTypeEnum.BATCH.name().equals(messageDTO.getMsgType())) {
         simpMessagingTemplate.convertAndSend(PushConstants.PUSH_TOPIC_DESTINATION + messageDTO.getProduct(),
             messageDTO.getData());
-      } else if (one.equals(messageDTO.getMsgType())) {
+      } else if (MsgTypeEnum.ONE.name().equals(messageDTO.getMsgType())) {
         simpMessagingTemplate.convertAndSendToUser(messageDTO.getClientId(), PushConstants.PUSH_ONE_DESTINATION,
             messageDTO.getData());
       } else {
