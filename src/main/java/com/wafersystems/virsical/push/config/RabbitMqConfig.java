@@ -8,7 +8,6 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,7 +18,6 @@ import org.springframework.context.annotation.Configuration;
  * @date 2019/6/11 11:09
  */
 @Configuration
-@ConditionalOnExpression("${push.service.cluster}")
 public class RabbitMqConfig {
 
   /**

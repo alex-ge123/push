@@ -2,12 +2,11 @@ package com.wafersystems.virsical.push.receiver;
 
 import com.alibaba.fastjson.JSON;
 import com.wafersystems.virsical.common.core.constant.enums.MsgTypeEnum;
+import com.wafersystems.virsical.common.core.dto.MessageDTO;
 import com.wafersystems.virsical.push.common.PushConstants;
-import com.wafersystems.virsical.push.model.MessageDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-@ConditionalOnExpression("${push.service.cluster}")
 public class Receiver {
 
   @Autowired
@@ -47,10 +45,10 @@ public class Receiver {
         simpMessagingTemplate.convertAndSend(PushConstants.PUSH_ALL_DESTINATION, messageDTO.getData());
       } else if (MsgTypeEnum.BATCH.name().equals(messageDTO.getMsgType())) {
         simpMessagingTemplate.convertAndSend(PushConstants.PUSH_TOPIC_DESTINATION + messageDTO.getProduct(),
-            messageDTO.getData());
+          messageDTO.getData());
       } else if (MsgTypeEnum.ONE.name().equals(messageDTO.getMsgType())) {
         simpMessagingTemplate.convertAndSendToUser(messageDTO.getClientId(), PushConstants.PUSH_ONE_DESTINATION,
-            messageDTO.getData());
+          messageDTO.getData());
       } else {
         log.info("消息类型未识别，无法推送");
       }

@@ -1,10 +1,9 @@
 package com.wafersystems.virsical.push.config;
 
 import com.alibaba.fastjson.JSON;
-import com.wafersystems.virsical.push.model.MessageDTO;
+import com.wafersystems.virsical.common.core.dto.MessageDTO;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -14,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
  * @date 2019/4/3 18:21
  */
 @Configuration
-@ConditionalOnExpression("${push.service.cluster}")
 public class MessageManager {
   private final AmqpTemplate rabbitTemplate;
 

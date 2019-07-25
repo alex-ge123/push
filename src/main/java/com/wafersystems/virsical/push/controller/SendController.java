@@ -3,12 +3,11 @@ package com.wafersystems.virsical.push.controller;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.wafersystems.virsical.common.core.constant.PushMqConstants;
+import com.wafersystems.virsical.common.core.dto.MessageDTO;
 import com.wafersystems.virsical.common.core.util.R;
 import com.wafersystems.virsical.common.security.annotation.Inner;
 import com.wafersystems.virsical.push.common.PushConstants;
 import com.wafersystems.virsical.push.config.MessageManager;
-import com.wafersystems.virsical.push.config.RabbitMqConfig;
-import com.wafersystems.virsical.push.model.MessageDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Header;
@@ -44,7 +43,7 @@ public class SendController {
   @Scheduled(fixedDelay = 10000)
   public void sendMessages() {
     simpMessagingTemplate.convertAndSend(PushConstants.PUSH_ALL_DESTINATION,
-        "[" + DateUtil.now() + "]当前在线用户数："
+      "[" + DateUtil.now() + "]当前在线用户数："
         + defaultSimpUserRegistry.getUserCount()
         + defaultSimpUserRegistry.getUsers().toString());
   }
@@ -60,13 +59,13 @@ public class SendController {
    */
   @PostMapping("/send/fanout")
   public R sendFanout(@RequestParam String product, @RequestParam String msgType,
-                           @RequestParam String clientId, @RequestParam String msg) {
+                      @RequestParam String clientId, @RequestParam String msg) {
     if (StrUtil.isBlank(msg)) {
       return R.fail();
     }
     log.info("群发广播消息: [{}]", msg);
     messageManager.sendFanout(PushMqConstants.EXCHANGE_FANOUT_PUSH_MESSAGE,
-      new MessageDTO(1, clientId, product, msgType, "", msg));
+      new MessageDTO(1, clientId, product, msgType, "", "zh-CN",msg));
     return R.ok();
   }
 
