@@ -65,7 +65,7 @@ public class SendController {
       return R.fail();
     }
     log.info("群发广播消息: [{}]", msg);
-    messageManager.sendFanout(PushMqConstants.EXCHANGE_FANOUT_PUSH,
+    messageManager.sendFanout(PushMqConstants.EXCHANGE_FANOUT_PUSH_MESSAGE,
       new MessageDTO(1, clientId, product, msgType, "", msg));
     return R.ok();
   }

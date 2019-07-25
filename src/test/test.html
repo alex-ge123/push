@@ -48,7 +48,7 @@
 
   // 建立连接
   function connect() {
-    var socket = new SockJS('http://192.168.203.141:8000/virsical-push/ws'); //连接SockJS的endpoint名称为"ws"
+    var socket = new SockJS('http://localhost:8000/virsical-push/ws'); //连接SockJS的endpoint名称为"ws"
     stompClient = Stomp.over(socket); //使用STMOP子协议的WebSocket客户端
     stompClient.heartbeat.outgoing = 20000; //客户端每20000ms发送一次心跳检测
     stompClient.heartbeat.incoming = 20000; //客户端不从服务端接收心跳包

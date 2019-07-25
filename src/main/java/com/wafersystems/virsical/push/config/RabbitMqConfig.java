@@ -36,35 +36,43 @@ public class RabbitMqConfig {
   public String pushFanoutQueue;
 
   /**
-   * Fanout模式
-   * Fanout 就是广播模式或者订阅模式，给Fanout交换机发送消息，绑定了这个交换机的所有队列都收到这个消息。
-   * 用户服务只负责发消息到交换机，其它服务消费消息需要绑定queue到交换机，并监听队列
+   * 推送消息广播交换机
    *
    * @return FanoutExchange
    */
   @Bean
-  public FanoutExchange fanoutExchange() {
-    return new FanoutExchange(PushMqConstants.EXCHANGE_FANOUT_PUSH);
+  public FanoutExchange messageFanoutExchange() {
+    return new FanoutExchange(PushMqConstants.EXCHANGE_FANOUT_PUSH_MESSAGE);
   }
 
   /**
-   * 队列
+   * WebSocket连接消息广播交换机
+   *
+   * @return FanoutExchange
+   */
+  @Bean
+  public FanoutExchange connectFanoutExchange() {
+    return new FanoutExchange(PushMqConstants.EXCHANGE_FANOUT_PUSH_CONNECT);
+  }
+
+  /**
+   * 推送消息队列
    *
    * @return Queue
    */
   @Bean
-  public Queue fanoutQueue() {
+  public Queue messageFanoutQueue() {
     return new Queue(pushFanoutQueue);
   }
 
   /**
-   * 绑定队列到交换机
+   * 绑定推送消息队列到交换机
    *
    * @return Binding
    */
   @Bean
-  public Binding fanoutBinding() {
-    return BindingBuilder.bind(fanoutQueue()).to(fanoutExchange());
+  public Binding messageFanoutBinding() {
+    return BindingBuilder.bind(messageFanoutQueue()).to(messageFanoutExchange());
   }
 
 }

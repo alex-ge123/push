@@ -1,8 +1,13 @@
 package com.wafersystems.virsical.push.config;
 
-import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
+import com.wafersystems.virsical.common.core.constant.PushMqConstants;
+import com.wafersystems.virsical.common.core.constant.enums.MsgActionEnum;
+import com.wafersystems.virsical.common.core.constant.enums.MsgTypeEnum;
+import com.wafersystems.virsical.common.core.dto.MessageDTO;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -36,6 +41,8 @@ import org.springframework.web.socket.config.annotation.WebSocketTransportRegist
 @AllArgsConstructor
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+  private final RabbitTemplate rabbitTemplate;
 
   /**
    * controller 注册协议节点,并映射指定的URl
@@ -107,10 +114,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
           String clientId = accessor.getFirstNativeHeader("clientId");
           log.info("webSocket preSend | Message [{}] | MessageChannel [{}]", message, channel);
           // 验证token
-          if (StrUtil.isBlank(token)) {
-            log.info("token验证失败[{}]", token);
-            return null;
-          }
+//          if (StrUtil.isBlank(token)) {
+//            log.info("token验证失败[{}]", token);
+//            return null;
+//          }
           // 设置当前用户
           WebSocketPrincipal webSocketPrincipal = new WebSocketPrincipal(clientId);
           accessor.setUser(webSocketPrincipal);
@@ -152,7 +159,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         if (accessor != null && !SimpMessageType.HEARTBEAT.equals(accessor.getMessageType())) {
           log.info("webSocket afterSendCompletion | Message [{}] | MessageChannel [{}] | sent [{}]", message,
-              channel, sent);
+            channel, sent);
+          if (SimpMessageType.CONNECT.equals(accessor.getMessageType())) {
+            String clientId = accessor.getFirstNativeHeader("clientId");
+            MessageDTO messageDTO = new MessageDTO(MsgTypeEnum.ONE.name(), MsgActionEnum.ADD.name(), clientId);
+            rabbitTemplate.convertAndSend(PushMqConstants.EXCHANGE_FANOUT_PUSH_CONNECT, "",
+              JSON.toJSONString(messageDTO));
+
+          }
         }
       }
 
