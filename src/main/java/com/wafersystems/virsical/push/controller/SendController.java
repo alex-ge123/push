@@ -14,11 +14,14 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.user.SimpUser;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Set;
 
 /**
  * @author tandk
@@ -40,12 +43,16 @@ public class SendController {
   /**
    * 定时广播在线人数
    */
-  @Scheduled(fixedDelay = 10000)
+  @Scheduled(fixedDelay = 1000)
   public void sendMessages() {
+    Set<SimpUser> set = defaultSimpUserRegistry.getUsers();
+    StringBuilder name = new StringBuilder();
+    for (SimpUser user : set) {
+      name.append(user.getName()).append(",");
+    }
+    System.out.println("[" + DateUtil.now() + "]当前在线用户数：" + defaultSimpUserRegistry.getUserCount() + "  " + name);
     simpMessagingTemplate.convertAndSend(PushConstants.PUSH_ALL_DESTINATION,
-      "[" + DateUtil.now() + "]当前在线用户数："
-        + defaultSimpUserRegistry.getUserCount()
-        + defaultSimpUserRegistry.getUsers().toString());
+      "[" + DateUtil.now() + "]当前在线用户数：" + defaultSimpUserRegistry.getUserCount() + "  " + name);
   }
 
   /**
