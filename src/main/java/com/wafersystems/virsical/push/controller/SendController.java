@@ -43,7 +43,7 @@ public class SendController {
   /**
    * 定时广播在线人数
    */
-  @Scheduled(fixedDelay = 1000)
+  @Scheduled(fixedDelay = 10000)
   public void sendMessages() {
     Set<SimpUser> set = defaultSimpUserRegistry.getUsers();
     StringBuilder name = new StringBuilder();
