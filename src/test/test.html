@@ -5,17 +5,23 @@
   <meta name="content-type" content="text/html" charset="UTF-8">
 </head>
 <body>
-<div>发送消息<br>
-  内容：<input type="text" id="content">
-  接收人：<input type="text" id="user" value="DSM001">
-  <button onclick="sendMessage()">发送</button>
-</div>
-<hr>
-<div>消息展示</div>
-<hr>
-<div>
-  <div id="response"></div>
-</div>
+  <span style="font-weight: bold">客户端ID</span>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <span id="clientId"></span>
+  <hr>
+  <div>
+    <span style="font-weight: bold">发送消息</span>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    内容：<input type="text" id="content">
+    接收人：<input type="text" id="user" value="DSM001">
+    <button onclick="sendMessage()">发送</button>
+  </div>
+  <hr>
+  <span style="font-weight: bold">消息展示</span>
+  <hr>
+  <div>
+    <div id="response" style="font-size: 14px"></div>
+  </div>
 
 <script>
   // 禁用WebSocket
@@ -38,9 +44,11 @@
 
   var clientId = 'DSM001';
 
+  $('#clientId').prepend(clientId);
+
   // 建立连接
   function connect() {
-    var socket = new SockJS('http://localhost:5200/ws'); //连接SockJS的endpoint名称为"ws"
+    var socket = new SockJS('http://localhost:8000/virsical-push/ws'); //连接SockJS的endpoint名称为"ws"
     stompClient = Stomp.over(socket); //使用STMOP子协议的WebSocket客户端
     stompClient.heartbeat.outgoing = 20000; //客户端每20000ms发送一次心跳检测
     stompClient.heartbeat.incoming = 20000; //客户端不从服务端接收心跳包
@@ -55,12 +63,15 @@
   function connectCallback(frame) {
     console.log('Connected:' + frame);
     //通过stompClient.subscribe订阅/topic/all 目标(destination)发送的消息
-    stompClient.subscribe('/topic/to-all', function (response) {
+    stompClient.subscribe('/topic/all', function (response) {
       showResponse(response.body);
       // showResponse(JSON.parse(response.body));
     });
-    // 产品_租户id_对象id
-    stompClient.subscribe('/user/' + clientId + '/to-user', function (response) {
+    stompClient.subscribe('/topic/map', function (response) {
+      showResponse(response.body);
+      // showResponse(JSON.parse(response.body));
+    });
+    stompClient.subscribe('/user/one', function (response) {
       showResponse(response.body);
       // showResponse(JSON.parse(response.body));
     });
@@ -82,13 +93,19 @@
   // 展示接收到消息内容
   function showResponse(message) {
     var response = $("#response");
-    response.append("<div>" + message + "</div>&nbsp;&nbsp;&nbsp;&nbsp;");
+    response.prepend("<div>" + message + "</div>&nbsp;&nbsp;&nbsp;&nbsp;");
   }
 
   // 向服务端发消息
   function sendMessage() {
-    // send方法有三个参数，第一个是发送的地址，第二个参数是头信息，第三个参数是消息体
-    stompClient.send("/app/reply", {"user": $("#user").val()}, $("#content").val());
+    var user = $("#user").val();
+    var msg = $("#content").val();
+    if (user == '' || msg == '') {
+      alert("内容或接收人不能为空");
+    } else {
+      // send方法有三个参数，第一个是发送的地址，第二个参数是头信息，第三个参数是消息体
+      stompClient.send("/app/client-send/one", {"user": user}, msg);
+    }
   }
 </script>
 </body>

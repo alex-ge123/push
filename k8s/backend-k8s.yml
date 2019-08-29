@@ -1,0 +1,40 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: __PROJECT__
+  labels:
+    app: __PROJECT__
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: __PROJECT__
+      tier: virsical_micoservice
+  template:
+    metadata:
+      labels:
+        app: __PROJECT__
+        tier: virsical_micoservice
+    spec:
+      nodeSelector:
+        env: dev
+      containers:
+      - name: __PROJECT__
+        image: openjdk:8-jre-alpine
+        command: ['/bin/sh', '-c', 'cd /work && java -jar __ARTIFACT_ID__.jar --spring.profiles.active=k8s']
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: UMASK
+          value: "0022"
+        - name: TZ
+          value: "Asia/Shanghai"
+        volumeMounts:
+        - name: work
+          mountPath: /work
+      volumes:
+      - name: work
+        persistentVolumeClaim:
+          claimName: __PROJECT__-work

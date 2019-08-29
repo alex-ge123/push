@@ -1,20 +1,28 @@
 package com.wafersystems.virsical.push.common;
 
+import lombok.experimental.UtilityClass;
+
 /**
  * 常量
  *
  * @author tandk
  * @date 2019/6/10 10:45
  */
-public interface PushConstants {
+@UtilityClass
+public final class PushConstants {
 
   /**
    * 广播群发，推送所有目的地
    */
-  String PUSH_ALL_DESTINATION = "/topic/to-all";
+  public static final String PUSH_ALL_DESTINATION = "/topic/all";
 
   /**
-   * 广播订阅，推送用户目的地
+   * 广播群发，推送指定产品目的地
    */
-  String PUSH_USER_DESTINATION = "/to-user";
+  public static final String PUSH_TOPIC_DESTINATION = "/topic/";
+
+  /**
+   * 广播订阅，推送指定用户目的地
+   */
+  public static final String PUSH_ONE_DESTINATION = "/one";
 }

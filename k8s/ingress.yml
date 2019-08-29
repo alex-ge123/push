@@ -1,0 +1,17 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: __PROJECT__-ing
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - host: __PROJECT__.rd.virsical.cn
+  tls:
+  - hosts:
+    - __PROJECT__.rd.virsical.cn
+    secretName: rd.virsical
+  backend:
+    serviceName: __PROJECT__
+    servicePort: 8080
