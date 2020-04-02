@@ -22,7 +22,15 @@ spec:
       containers:
       - name: __PROJECT__
         image: openjdk:8-jre-alpine
-        command: ['/bin/sh', '-c', 'cd /work && java -jar __ARTIFACT_ID__.jar']
+        command:
+            - sh
+            - '-c'
+        args:
+          - >-
+            cd /work && java
+            -javaagent:/work/pinpoint-agent-2.0.1/pinpoint-bootstrap-2.0.1.jar
+            -Dpinpoint.agentId=${HOSTNAME#*-*-}
+            -Dpinpoint.applicationName=__PINPOINT_APPNAME__ -jar __ARTIFACT_ID__.jar
         ports:
         - containerPort: 8080
           name: http
