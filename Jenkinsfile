@@ -60,9 +60,7 @@ pipeline {
                 withMaven(jdk: 'oracle_jdk18', maven: 'maven', mavenSettingsConfig: 'e0af2237-7500-4e99-af21-60cc491267ec', options: [findbugsPublisher(disabled: true)]) {
                     sh 'mvn clean package -DskipTests'
                 }
-                // stash includes: '**/target/*.jar', name: 'app'
-                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
-            }
+             }
         }
         stage('Deploy') {
             when {
