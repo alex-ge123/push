@@ -13,8 +13,12 @@ spring:
       fail-fast: true
       name: ${spring.application.name}
       profile: ${spring.profiles.active}
-      # 指定config server地址
-      uri: http://wafer:wafer@localhost:8002
+      # 配置从注册发现中获取config server
+      discovery:
+        enabled: true
+        service-id: virsical-config
+      username: wafer
+      password: wafer
 
 # 注册中心配置
 eureka:
