@@ -42,13 +42,13 @@ public class Receiver {
       }
       MessageDTO messageDTO = JSON.parseObject(message, MessageDTO.class);
       if (MsgTypeEnum.ALL.name().equals(messageDTO.getMsgType())) {
-        simpMessagingTemplate.convertAndSend(PushConstants.PUSH_ALL_DESTINATION, messageDTO.getData());
+        simpMessagingTemplate.convertAndSend(PushConstants.PUSH_ALL_DESTINATION, messageDTO);
       } else if (MsgTypeEnum.BATCH.name().equals(messageDTO.getMsgType())) {
         simpMessagingTemplate.convertAndSend(PushConstants.PUSH_TOPIC_DESTINATION + messageDTO.getProduct(),
-          messageDTO.getData());
+          messageDTO);
       } else if (MsgTypeEnum.ONE.name().equals(messageDTO.getMsgType())) {
         simpMessagingTemplate.convertAndSendToUser(messageDTO.getClientId(), PushConstants.PUSH_ONE_DESTINATION,
-          messageDTO.getData());
+          messageDTO);
       } else {
         log.info("消息类型未识别，无法推送");
       }
