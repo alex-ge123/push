@@ -29,7 +29,7 @@ public final class PushConstants {
   /**
    * ws参数正则
    */
-  public static final String WS_PARAM_REGEX = "\\d{10,20}";
+  public static final String WS_PARAM_REGEX = "\\d{13}";
 
   /**
    * ws前缀
