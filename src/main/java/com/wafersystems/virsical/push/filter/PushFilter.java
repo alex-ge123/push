@@ -38,13 +38,21 @@ public class PushFilter extends GenericFilterBean {
     HttpServletResponse response = (HttpServletResponse) servletResponse;
 
     String url = request.getServletPath();
-    // 过滤ws
+    // 过滤ws，校验path、t参数、referer是否合法
     if (url.startsWith(PushConstants.WS_URL_PREFIX)) {
       String t = request.getParameter("t");
-      boolean paramValid = StrUtil.isNotBlank(t) && !t.matches(PushConstants.WS_PARAM_REGEX);
-      boolean urlValid = StrUtil.containsAny(url, "%", "_", "-", "(", ")");
-      if (paramValid || urlValid) {
-        log.error("{} > 参数错误：{}", url, t);
+      boolean paramInvalid = StrUtil.isNotBlank(t) && !t.matches(PushConstants.WS_PARAM_REGEX);
+      boolean urlInvalid = StrUtil.containsAny(url, "%", "_", "-", "(", ")");
+      String referer = request.getHeader("referer");
+      String origin = request.getHeader("origin");
+      boolean refererInvalid = false;
+      if (StrUtil.isNotBlank(referer) && StrUtil.isNotBlank(origin)) {
+        if (!referer.startsWith(origin)) {
+          refererInvalid = true;
+        }
+      }
+      if (paramInvalid || urlInvalid || refererInvalid) {
+        log.error("地址无效[{}]：[{}]，参数无效[{}]：[{}]，referer无效[{}]：[{}]", urlInvalid, url, paramInvalid, t, refererInvalid, referer);
         response.setStatus(HttpStatus.BAD_REQUEST.value());
         WebUtils.renderJson(response,
           R.builder().code(CommonConstants.FAIL).msg("").build());
