@@ -25,4 +25,14 @@ public final class PushConstants {
    * 广播订阅，推送指定用户目的地
    */
   public static final String PUSH_ONE_DESTINATION = "/one";
+
+  /**
+   * ws参数正则
+   */
+  public static final String WS_PARAM_REGEX = "\\d{10,20}";
+
+  /**
+   * ws前缀
+   */
+  public static final String WS_URL_PREFIX = "/ws";
 }
