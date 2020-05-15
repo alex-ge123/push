@@ -41,18 +41,16 @@ public class SendController {
   private MessageManager messageManager;
 
   /**
-   * 定时广播在线人数
+   * 定时打印在线人数
    */
-  @Scheduled(fixedDelay = 10000)
+  @Scheduled(fixedDelay = 60000)
   public void sendMessages() {
     Set<SimpUser> set = defaultSimpUserRegistry.getUsers();
     StringBuilder name = new StringBuilder();
     for (SimpUser user : set) {
       name.append(user.getName()).append(",");
     }
-    System.out.println("[" + DateUtil.now() + "]当前在线用户数：" + defaultSimpUserRegistry.getUserCount() + "  " + name);
-    simpMessagingTemplate.convertAndSend(PushConstants.PUSH_ALL_DESTINATION,
-      "[" + DateUtil.now() + "]当前在线用户数：" + defaultSimpUserRegistry.getUserCount() + "  " + name);
+    log.info("[" + DateUtil.now() + "]当前在线用户数：" + defaultSimpUserRegistry.getUserCount() + "  " + name);
   }
 
   /**
