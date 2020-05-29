@@ -5,9 +5,11 @@ import com.wafersystems.virsical.common.core.constant.PushMqConstants;
 import com.wafersystems.virsical.common.core.constant.enums.MsgActionEnum;
 import com.wafersystems.virsical.common.core.constant.enums.MsgTypeEnum;
 import com.wafersystems.virsical.common.core.dto.MessageDTO;
+import com.wafersystems.virsical.push.handler.CheckTokenHandler;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -25,6 +27,8 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 
+import java.util.Map;
+
 /**
  * WebSocket配置
  *
@@ -41,6 +45,9 @@ import org.springframework.web.socket.config.annotation.WebSocketTransportRegist
 @AllArgsConstructor
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+  @Autowired
+  private CheckTokenHandler checkTokenHandler;
 
   /**
    * controller 注册协议节点,并映射指定的URl
@@ -112,10 +119,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
           String clientId = accessor.getFirstNativeHeader("clientId");
           log.info("webSocket preSend | Message [{}] | MessageChannel [{}]", message, channel);
           // 验证token
-//          if (StrUtil.isBlank(token)) {
-//            log.info("token验证失败[{}]", token);
-//            return null;
-//          }
+          checkTokenHandler.checkToken(token);
           // 设置当前用户
           WebSocketPrincipal webSocketPrincipal = new WebSocketPrincipal(clientId);
           accessor.setUser(webSocketPrincipal);
