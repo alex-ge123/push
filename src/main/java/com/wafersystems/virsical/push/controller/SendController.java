@@ -50,7 +50,7 @@ public class SendController {
     for (SimpUser user : set) {
       name.append(user.getName()).append(",");
     }
-    log.info("[" + DateUtil.now() + "]当前在线用户数：" + defaultSimpUserRegistry.getUserCount() + "  " + name);
+    log.info("当前在线用户数：{} [{}]", defaultSimpUserRegistry.getUserCount(), name);
   }
 
   /**

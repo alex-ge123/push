@@ -35,9 +35,9 @@ public class Receiver {
   public void receiveTopicPush(@Payload String message) {
     log.info("【push.fanout.queue监听到消息】{}", message);
     try {
-      // 服务首次消费延时5秒，为了避免在服务刚启动后，WebSocket连接还未建立的情况下，进行消费
+      // 服务首次消费延时10秒，为了避免在服务刚启动后，WebSocket连接还未建立的情况下，进行消费
       if (isFirst) {
-        Thread.sleep(5000);
+        Thread.sleep(10000);
         isFirst = false;
       }
       MessageDTO messageDTO = JSON.parseObject(message, MessageDTO.class);
@@ -51,7 +51,7 @@ public class Receiver {
           messageDTO);
       }
     } catch (Exception e) {
-      log.info("消息监听处理异常", e);
+      log.error("消息监听处理异常", e);
     }
   }
 }

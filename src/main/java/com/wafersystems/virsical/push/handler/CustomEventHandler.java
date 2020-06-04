@@ -59,6 +59,6 @@ public class CustomEventHandler {
     }
     String data = JSON.toJSONString(messageDTO);
     rabbitTemplate.convertAndSend(PushMqConstants.EXCHANGE_FANOUT_PUSH_CONNECT, "", data);
-    log.info("发布[{}][{}]消息：{}", user, accessor.getCommand(), data);
+    log.debug("发布[{}][{}]消息：{}", user, accessor.getCommand(), data);
   }
 }
