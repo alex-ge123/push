@@ -5,14 +5,15 @@
   <meta name="content-type" content="text/html" charset="UTF-8">
 </head>
 <body>
-  <span style="font-weight: bold">客户端ID</span>
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <span id="clientId"></span>
+  <span style="font-weight: bold">客户端ID</span>&nbsp;&nbsp;
+  <span id="clientId"></span>&nbsp;&nbsp;
+  <button onclick="disconnect()">关闭连接</button>&nbsp;&nbsp;
+  <button onclick="connect()">重新连接</button>
   <hr>
   <div>
     <span style="font-weight: bold">发送消息</span>
     &nbsp;&nbsp;&nbsp;&nbsp;
-    内容：<input type="text" id="content">
+    内容：<input type="text" id="content" value="123">
     接收人：<input type="text" id="user" value="DSM001">
     <button onclick="sendMessage()">发送</button>
   </div>
@@ -53,14 +54,16 @@
     stompClient.heartbeat.outgoing = 20000; //客户端每20000ms发送一次心跳检测
     stompClient.heartbeat.incoming = 20000; //客户端不从服务端接收心跳包
     var headers = {
-      'token': '05d180d5-7e80-4d2f-9ac4-f74ec7fdeb61',
-      'clientId': clientId
+      'token': '74cfd824-f035-4751-bb77-1ff5ddf7069d',
+      'clientId': clientId,
+      'product': 'vst'
     };
     stompClient.connect(headers, connectCallback, errorCallback);
   }
 
   //连接WebSocket服务端回调函数
   function connectCallback(frame) {
+    showResponse("<span style='font-weight:bold;color:green'>连接成功</span>");
     console.log('Connected:' + frame);
     //通过stompClient.subscribe订阅/topic/all 目标(destination)发送的消息
     stompClient.subscribe('/topic/all', function (response) {
@@ -79,14 +82,19 @@
 
   //连接失败时的回调函数，此函数重新调用连接方法，形成循环，直到连接成功
   function errorCallback() {
+    showResponse("<span style='font-weight:bold;color:red'>连接失败</span>");
     connect();
   }
 
   //关闭双通道
   function disconnect() {
-    if (stompClient != null) {
-      stompClient.disconnect();
-    }
+    var headers = {
+      'token': '74cfd824-f035-4751-bb77-1ff5ddf7069d',
+      'clientId': clientId,
+      'product': 'vst'
+    };
+    stompClient.disconnect(headers, null, null);
+    showResponse("<span style='font-weight:bold;color:orange'>连接关闭</span>");
     console.log("Disconnected");
   }
 

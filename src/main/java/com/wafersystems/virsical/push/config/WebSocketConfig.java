@@ -113,16 +113,21 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
       @Override
       public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+        if (accessor == null) {
+          return null;
+        }
         // 连接请求
-        if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
-          String token = accessor.getFirstNativeHeader("token");
-          String clientId = accessor.getFirstNativeHeader("clientId");
-          log.info("webSocket preSend | Message [{}] | MessageChannel [{}]", message, channel);
+        String token = accessor.getFirstNativeHeader("token");
+        String clientId = accessor.getFirstNativeHeader("clientId");
+        if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+          log.info("CONNECT >>> {}", message);
           // 验证token
           checkTokenHandler.checkToken(token);
           // 设置当前用户
           WebSocketPrincipal webSocketPrincipal = new WebSocketPrincipal(clientId);
           accessor.setUser(webSocketPrincipal);
+        } else if (StompCommand.DISCONNECT.equals(accessor.getCommand())) {
+          log.info("DISCONNECT >>> {}", message);
         }
         return message;
       }

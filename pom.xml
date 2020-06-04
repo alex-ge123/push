@@ -97,7 +97,7 @@
     <dependency>
       <groupId>com.wafersystems</groupId>
       <artifactId>virsical-common-security</artifactId>
-      <version>5.1.4.103</version>
+      <version>5.1.6.101</version>
     </dependency>
   </dependencies>
 

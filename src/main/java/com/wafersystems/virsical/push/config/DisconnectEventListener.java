@@ -6,12 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.messaging.SessionConnectEvent;
+import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.util.Objects;
 
 /**
- * ws连接事件监听器
+ * ws断开连接事件监听器
  *
  * @author tandk
  * @date 2019/8/6 17:57
@@ -19,7 +19,7 @@ import java.util.Objects;
 @Slf4j
 @Component
 @AllArgsConstructor
-public class ConnectEventListener implements ApplicationListener<SessionConnectEvent> {
+public class DisconnectEventListener implements ApplicationListener<SessionDisconnectEvent> {
   private final CustomEventHandler customEventHandler;
 
   /**
@@ -28,12 +28,12 @@ public class ConnectEventListener implements ApplicationListener<SessionConnectE
    * @param event the event to respond to
    */
   @Override
-  public void onApplicationEvent(SessionConnectEvent event) {
+  public void onApplicationEvent(SessionDisconnectEvent event) {
     StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
 
     //判断客户端的连接状态
     switch (Objects.requireNonNull(accessor.getCommand())) {
-      case CONNECT:
+      case DISCONNECT:
         customEventHandler.handler(accessor);
         break;
       default:
