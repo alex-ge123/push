@@ -26,7 +26,7 @@
     <mybatis-plus.version>3.1.1</mybatis-plus.version>
     <mysql.connector.version>8.0.13</mysql.connector.version>
     <ttl.version>2.10.2</ttl.version>
-    <fastjson.version>1.2.56</fastjson.version>
+    <fastjson.version>1.2.70</fastjson.version>
     <spring-boot-admin.version>2.0.4</spring-boot-admin.version>
     <swagger.version>2.9.2</swagger.version>
     <hutool.version>4.3.2</hutool.version>
