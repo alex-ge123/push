@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     parameters {
-        booleanParam(name: 'checkcode', defaultValue: false, description: '是否执行代码检查？')
+        choice(name: 'replicasNum', choices: ['1', '2', '3', '4', '5'], description: '集群数量')
     }
 
     environment {
@@ -11,11 +11,13 @@ pipeline {
         SERVICE_NAME = '-push'
         PVC_WORK = ''
         K8S_CLUSTER_NAME = 'kubernetes'
+        REPLICAS_NUM = "${params.replicasNum}"
     }
 
     stages {
         stage('Clean') {
             steps {
+            echo "集群数量为 : ${REPLICAS_NUM}"
                 script {
                     GROUP_NAME = JOB_NAME.split("/")[0]
                     SERVICE_NAME = GROUP_NAME + SERVICE_NAME
@@ -66,6 +68,7 @@ pipeline {
                 sh "sed -i s@__ENV__@${RD_ENV}@g k8s.yml"
                 sh "sed -i s@__GROUP_NAME__@${GROUP_NAME}@g k8s.yml"
                 sh "sed -i s@__ARTIFACT_ID__@${readMavenPom().getArtifactId()}@g k8s.yml"
+                sh "sed -i s@__REPLICAS_NUM__@${REPLICAS_NUM}@g k8s.yml"
 
                 sh "wget https://gitlab.rd.virsical.cn/wafer_public/document/raw/master/pinpoint-agent-2.0.1.tar.gz -O pinpoint-agent-2.0.1.tar.gz"
                 sh "tar xzf pinpoint-agent-2.0.1.tar.gz"

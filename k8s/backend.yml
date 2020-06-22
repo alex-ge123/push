@@ -6,7 +6,7 @@ metadata:
   labels:
     app: __PROJECT__
 spec:
-  replicas: 1
+  replicas: __REPLICAS_NUM__
   selector:
     matchLabels:
       app: __PROJECT__
@@ -28,9 +28,7 @@ spec:
         args:
           - >-
             cd /work && java
-            -javaagent:/work/pinpoint-agent-2.0.1/pinpoint-bootstrap-2.0.1.jar
-            -Dpinpoint.agentId=${HOSTNAME#*-*-}
-            -Dpinpoint.applicationName=__PINPOINT_APPNAME__ -jar __ARTIFACT_ID__.jar
+            -jar __ARTIFACT_ID__.jar
         ports:
         - containerPort: 8080
           name: http
