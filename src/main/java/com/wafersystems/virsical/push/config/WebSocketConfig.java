@@ -57,7 +57,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   @Override
   public void registerStompEndpoints(StompEndpointRegistry registry) {
     // 注册一个STOMP协议的endpoint[/ws]，允许跨域访问，并指定 SockJS协议
-    registry.addEndpoint("/ws").setAllowedOrigins("*").withSockJS().setClientLibraryUrl("/web/js/socket.min.js").setWebSocketEnabled(true);
+    registry.addEndpoint("/ws").setAllowedOrigins("*").withSockJS().setClientLibraryUrl("/web/js/socket.min.js");
   }
 
   /**
