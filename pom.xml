@@ -6,7 +6,7 @@
 
   <groupId>com.wafersystems</groupId>
   <artifactId>virsical-push</artifactId>
-  <version>5.2.1.100</version>
+  <version>6.1.100</version>
   <packaging>jar</packaging>
 
   <name>push</name>
