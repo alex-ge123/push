@@ -1,6 +1,21 @@
 server:
   port: 8009
 
+# 配置文件加密策略
+jasypt:
+  encryptor:
+    algorithm: PBEWithMD5AndDES
+    iv-generator-classname: org.jasypt.iv.NoIvGenerator
+
+# 注册中心帐号
+eureka-server:
+  username: ENC(DE3g1l4ia4HCoHQY8S4mvw==)
+  password: ENC(PVTyLn8Lvm5+sHXkq9xIEg==)
+# 配置中心帐号
+config-server:
+  username: ENC(VEV5NWWrsEjHQhrTxgPEag==)
+  password: ENC(SvlLwLiD56hc6ceCDmCkcQ==)
+
 spring:
   application:
     name: virsical-push
@@ -17,8 +32,8 @@ spring:
       discovery:
         enabled: true
         service-id: virsical-config
-      username: wafer
-      password: wafer
+      username: ${config-server.username}
+      password: ${config-server.password}
 
 # 注册中心配置
 eureka:
@@ -30,6 +45,6 @@ eureka:
     leaseExpirationDurationInSeconds: 10
   client:
     service-url:
-      defaultZone: http://wafer:wafer@localhost:8001/eureka/
+      defaultZone: http://${eureka-server.username}:${eureka-server.password}@localhost:8001/eureka/
     # 表示eureka client间隔多久去拉取服务注册信息，默认为30秒
     registry-fetch-interval-seconds: 5

@@ -28,7 +28,9 @@ spec:
         args:
           - >-
             cd /work && java
-            -jar __ARTIFACT_ID__.jar
+            -jar
+            -Djasypt.encryptor.password=wafer
+            __ARTIFACT_ID__.jar
             --spring.profiles.active=k8s
         ports:
         - containerPort: 8080
