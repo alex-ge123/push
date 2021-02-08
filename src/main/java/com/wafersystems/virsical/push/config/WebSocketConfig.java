@@ -120,14 +120,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         String token = accessor.getFirstNativeHeader("token");
         String clientId = accessor.getFirstNativeHeader("clientId");
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-          log.debug("CONNECT >>> {}", message);
+          log.info("CONNECT >>> {}", message);
           // 验证token
           checkTokenHandler.checkToken(token);
           // 设置当前用户
           WebSocketPrincipal webSocketPrincipal = new WebSocketPrincipal(clientId);
           accessor.setUser(webSocketPrincipal);
         } else if (StompCommand.DISCONNECT.equals(accessor.getCommand())) {
-          log.debug("DISCONNECT >>> {}", message);
+          log.info("DISCONNECT >>> {}", message);
         }
         return message;
       }
