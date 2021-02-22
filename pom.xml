@@ -6,7 +6,7 @@
 
   <groupId>com.wafersystems</groupId>
   <artifactId>virsical-push</artifactId>
-  <version>6.2.100</version>
+  <version>6.3.100</version>
   <packaging>jar</packaging>
 
   <name>push</name>
@@ -96,7 +96,7 @@
     <dependency>
       <groupId>com.wafersystems</groupId>
       <artifactId>virsical-common-security</artifactId>
-      <version>5.2.1.102</version>
+      <version>6.3.105</version>
     </dependency>
   </dependencies>
 
