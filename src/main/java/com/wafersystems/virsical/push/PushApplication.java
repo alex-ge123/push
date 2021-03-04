@@ -32,6 +32,6 @@ public class PushApplication {
   @PostConstruct
   public void init() {
     // 1分钟打印WebSocket信息日志
-    webSocketMessageBrokerStats.setLoggingPeriod(60 * 1000);
+    webSocketMessageBrokerStats.setLoggingPeriod(60000L);
   }
 }
