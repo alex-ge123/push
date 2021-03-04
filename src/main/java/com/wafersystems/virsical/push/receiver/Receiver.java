@@ -1,12 +1,14 @@
 package com.wafersystems.virsical.push.receiver;
 
 import com.alibaba.fastjson.JSON;
+import com.wafersystems.virsical.common.core.constant.enums.EnvEnum;
 import com.wafersystems.virsical.common.core.constant.enums.MsgTypeEnum;
 import com.wafersystems.virsical.common.core.dto.MessageDTO;
 import com.wafersystems.virsical.push.common.PushConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,9 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class Receiver {
+
+  @Value("${spring.profiles.active}")
+  private String springProfilesActive;
 
   @Autowired
   private SimpMessagingTemplate simpMessagingTemplate;
@@ -36,7 +41,7 @@ public class Receiver {
     log.info("【push.fanout.queue监听到消息】{}", message);
     try {
       // 服务首次消费延时10秒，为了避免在服务刚启动后，WebSocket连接还未建立的情况下，进行消费
-      if (isFirst) {
+      if (isFirst && !EnvEnum.TESTCASE.getType().equals(springProfilesActive)) {
         Thread.sleep(10000);
         isFirst = false;
       }

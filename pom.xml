@@ -6,7 +6,7 @@
 
   <groupId>com.wafersystems</groupId>
   <artifactId>virsical-push</artifactId>
-  <version>6.3.100</version>
+  <version>6.4.100</version>
   <packaging>jar</packaging>
 
   <name>push</name>
@@ -97,6 +97,29 @@
       <groupId>com.wafersystems</groupId>
       <artifactId>virsical-common-security</artifactId>
       <version>6.3.105</version>
+    </dependency>
+    <!--TestNG-->
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>6.14.3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-test</artifactId>
+      <version>5.1.5.RELEASE</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

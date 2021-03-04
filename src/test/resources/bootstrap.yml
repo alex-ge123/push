@@ -1,0 +1,73 @@
+server:
+  port: 8008
+spring:
+  application:
+    name: virsical-map
+  profiles:
+    active: testcase
+  rabbitmq:
+    host: 192.168.203.141
+    port: 5672
+    virtual-host: /testcase
+    username: testcase
+    password: testcase
+    listener:
+      simple:
+        retry:
+          enabled: true # 开启重试
+          max-attempts: 5 # 重试次数，默认3次
+  # 配置中心
+  cloud:
+    config:
+      enabled: false
+
+# 注册中心配置
+eureka:
+  client:
+    enabled: false
+
+# 暴露监控端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: ALWAYS
+
+# 日志文件
+logging:
+  file: ${user.dir}/logs/${spring.application.name}-${server.port}.log
+  level:
+    root: info
+    com.wafersystems.virsical.map.mapper: debug
+
+# 加解密根密码
+jasypt:
+  encryptor:
+    password: wafer
+aes:
+  # 前端密码密钥，必须16位
+  key: 'XDH206VF30Nf9q7t'
+
+# feign 配置
+feign:
+  hystrix:
+    enabled: true
+
+push:
+  # 发送建立连接与关闭连接MQ消息开关
+  send-connect-mq: false
+  fanout:
+    queue: queue.push.message.${spring.cloud.client.ip-address}-${server.port}
+
+# 校验参数与连接是否合法
+check:
+  enable: true
+  param-regex: '\d{13}'
+  url-filter:
+    - '%'
+    - '-'
+    - '('
+    - ')'
