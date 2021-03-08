@@ -33,11 +33,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(BusinessException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public R handleBusinessException(BusinessException e) {
-    if (log.isDebugEnabled()) {
-      log.debug("【业务异常】{}", e.getMessage(), e);
-    } else {
-      log.warn("【业务异常】{}", e.getMessage());
-    }
+    log.warn("【业务异常】{}", e.getMessage());
     return R.builder()
       .msg(e.getLocalizedMessage())
       .code(CommonConstants.FAIL)

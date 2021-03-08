@@ -7,11 +7,14 @@ import com.wafersystems.virsical.common.core.constant.PushMqConstants;
 import com.wafersystems.virsical.common.core.constant.enums.MsgTypeEnum;
 import com.wafersystems.virsical.common.core.dto.MessageDTO;
 import com.wafersystems.virsical.push.BaseTest;
+import com.wafersystems.virsical.push.config.WebSocketPrincipal;
+import com.wafersystems.virsical.push.handler.CheckTokenHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestOperations;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -112,8 +115,31 @@ public class SendControllerTest extends BaseTest {
     String url = "/ws/info";
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("t", "1614778320258");
-    JSONObject jsonObjectFail = doGet(url, params);
-    Assert.assertEquals(jsonObjectFail.get("websocket"), true);
+    JSONObject jsonObject = doGet(url, params);
+    Assert.assertEquals(jsonObject.get("websocket"), true);
+
+    String url1 = "/ws/info-(123)";
+    JSONObject jsonObjectFail = doGet(url1, params);
+    Assert.assertEquals(jsonObjectFail.get("code"), CommonConstants.FAIL);
   }
 
+  @Test
+  public void testWebSocketPrincipal() {
+    WebSocketPrincipal webSocketPrincipal = new WebSocketPrincipal("admin");
+    Assert.assertEquals(webSocketPrincipal.getName(), "admin");
+  }
+
+  @Autowired
+  RestOperations restTemplate;
+
+  @Test
+  public void testCheckTokenHandler() {
+    CheckTokenHandler checkTokenHandler = new CheckTokenHandler(restTemplate);
+    try {
+      checkTokenHandler.checkToken("123456");
+    } catch (IllegalStateException e) {
+      Assert.assertTrue(true);
+    }
+
+  }
 }

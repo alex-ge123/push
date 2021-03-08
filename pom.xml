@@ -28,7 +28,10 @@
     <ttl.version>2.10.2</ttl.version>
     <fastjson.version>1.2.70</fastjson.version>
     <swagger.version>2.9.2</swagger.version>
-    <hutool.version>4.3.2</hutool.version>
+    <sonar.exclusions>
+      com.wafersystems.virsical.push.handler.CustomEventHandler,
+      com.wafersystems.virsical.push.PushApplication
+    </sonar.exclusions>
   </properties>
 
   <dependencies>
@@ -73,24 +76,6 @@
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <scope>provided</scope>
-    </dependency>
-    <!--hutool-->
-    <dependency>
-      <groupId>cn.hutool</groupId>
-      <artifactId>hutool-all</artifactId>
-      <version>${hutool.version}</version>
-    </dependency>
-    <!--TTL-->
-    <dependency>
-      <groupId>com.alibaba</groupId>
-      <artifactId>transmittable-thread-local</artifactId>
-      <version>${ttl.version}</version>
-    </dependency>
-    <!--fastjson-->
-    <dependency>
-      <groupId>com.alibaba</groupId>
-      <artifactId>fastjson</artifactId>
-      <version>${fastjson.version}</version>
     </dependency>
     <!--微服务公共依赖包-->
     <dependency>

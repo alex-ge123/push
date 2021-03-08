@@ -110,6 +110,7 @@ public class BaseTest extends AbstractTestNGSpringContextTests {
    */
   public JSONObject doMultipartPost(String url, String content, MockMultipartFile mockMultipartFile) throws Exception {
     MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.multipart(url).file(mockMultipartFile);
+    requestBuilder.servletPath(url);
     return doCall(requestBuilder, content, null, false, false);
   }
 
@@ -127,6 +128,7 @@ public class BaseTest extends AbstractTestNGSpringContextTests {
   public JSONObject doPost(String url, String content, MultiValueMap<String, String> params, Boolean isInner,
                            Boolean isPlatform) throws Exception {
     MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(url);
+    requestBuilder.servletPath(url);
     return doCall(requestBuilder, content, params, isInner, isPlatform);
   }
 
@@ -154,6 +156,7 @@ public class BaseTest extends AbstractTestNGSpringContextTests {
    */
   public JSONObject doGet(String url, Boolean isInner, Boolean isPlatform) throws Exception {
     MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(url);
+    requestBuilder.servletPath(url);
     return doCall(requestBuilder, null, null, isInner, isPlatform);
   }
 
@@ -191,6 +194,7 @@ public class BaseTest extends AbstractTestNGSpringContextTests {
    */
   public JSONObject doGet(String url, Boolean isInner, Boolean isPlatform, MultiValueMap<String, String> params) throws Exception {
     MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(url);
+    requestBuilder.servletPath(url);
     return doCall(requestBuilder, null, params, isInner, isPlatform);
   }
 
@@ -206,6 +210,7 @@ public class BaseTest extends AbstractTestNGSpringContextTests {
    */
   public JSONObject doPut(String url, String content, Boolean isInner, Boolean isPlatform) throws Exception {
     MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.put(url);
+    requestBuilder.servletPath(url);
     return doCall(requestBuilder, content, null, isInner, isPlatform);
   }
 
@@ -220,6 +225,7 @@ public class BaseTest extends AbstractTestNGSpringContextTests {
    */
   public JSONObject doDelete(String url, Boolean isInner, Boolean isPlatform) throws Exception {
     MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.delete(url);
+    requestBuilder.servletPath(url);
     return doCall(requestBuilder, null, null, isInner, isPlatform);
   }
 
