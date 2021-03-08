@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: __INIT_POD_NAME__
+spec:
+  nodeSelector:
+    env: dev
+  containers:
+  - name: nginx
+    image: nginx:alpine
+    ports:
+    - containerPort: 80
+    volumeMounts:
+    - name: work
+      mountPath: /work
+  volumes:
+  - name: work
+    persistentVolumeClaim:
+        claimName: __PROJECT__-work
