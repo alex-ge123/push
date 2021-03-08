@@ -29,11 +29,11 @@
     <fastjson.version>1.2.70</fastjson.version>
     <swagger.version>2.9.2</swagger.version>
     <sonar.exclusions>
-      **/virsical.push.common.PushConstants,
-      **/virsical.push.config.ConnectEventListener,
-      **/virsical.push.config.DisconnectEventListener,
-      **/virsical.push.handler/*,
-      **/virsical.push.PushApplication
+      **/push/common/PushConstants.java,
+      **/push/config/ConnectEventListener.java,
+      **/push/config/DisconnectEventListener.java,
+      **/push/handler/**,
+      **/push/PushApplication.java
     </sonar.exclusions>
   </properties>
 
