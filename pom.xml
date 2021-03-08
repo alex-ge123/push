@@ -29,8 +29,11 @@
     <fastjson.version>1.2.70</fastjson.version>
     <swagger.version>2.9.2</swagger.version>
     <sonar.exclusions>
-      com.wafersystems.virsical.push.handler.CustomEventHandler,
-      com.wafersystems.virsical.push.PushApplication
+      **/virsical.push.common.PushConstants,
+      **/virsical.push.config.ConnectEventListener,
+      **/virsical.push.config.DisconnectEventListener,
+      **/virsical.push.handler/*,
+      **/virsical.push.PushApplication
     </sonar.exclusions>
   </properties>
 
