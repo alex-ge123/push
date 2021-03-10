@@ -112,7 +112,7 @@ pipeline {
                         // 使用初始化Pod进行数据复制
                         sh "kubectl cp ./work ${INIT_POD_NAME}:/ -n ${RD_ENV}"
                         // 删除初始化Pod
-                        sh "kubectl delete pod ${INIT_POD_NAME} --force -n ${RD_ENV}"
+                        sh "kubectl delete pod ${INIT_POD_NAME} --now --wait=false -n ${RD_ENV}"
 
                         sh "kubectl apply -f k8s-service.yml -n ${RD_ENV}"
                         sh "kubectl apply -f k8s.yml -n ${RD_ENV}"
