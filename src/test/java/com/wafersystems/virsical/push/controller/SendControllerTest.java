@@ -10,6 +10,7 @@ import com.wafersystems.virsical.push.BaseTest;
 import com.wafersystems.virsical.push.config.WebSocketPrincipal;
 import com.wafersystems.virsical.push.handler.CheckTokenHandler;
 import com.wafersystems.virsical.push.handler.CustomEventHandler;
+import com.wafersystems.virsical.push.receiver.Receiver;
 import lombok.extern.slf4j.Slf4j;
 import org.mockito.Mockito;
 import org.springframework.amqp.core.AmqpTemplate;
@@ -23,7 +24,10 @@ import org.springframework.web.client.RestOperations;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.security.Principal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * SendControllerTest
@@ -47,13 +51,20 @@ public class SendControllerTest extends BaseTest {
     params.add("product", "map");
     params.add("msgType", "ONE");
     params.add("clientId", "123");
-    params.add("msg", "");
-    JSONObject jsonObjectFail = doPost(url, null, params);
-    Assert.assertEquals(jsonObjectFail.get("code"), CommonConstants.FAIL);
-
     params.add("msg", "test");
     JSONObject jsonObject = doPost(url, null, params);
     Assert.assertEquals(jsonObject.get("code"), CommonConstants.SUCCESS);
+  }
+  @Test
+  public void sendFanoutFail() throws Exception {
+    String url = "/send/fanout";
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+    params.add("product", "");
+    params.add("msgType", "");
+    params.add("clientId", "");
+    params.add("msg", "");
+    JSONObject jsonObjectFail = doPost(url, null, params);
+    Assert.assertEquals(jsonObjectFail.get("code"), CommonConstants.FAIL);
   }
 
   @Test
@@ -87,11 +98,6 @@ public class SendControllerTest extends BaseTest {
   public void sendOne() throws Exception {
     String url = "/send/one";
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-    params.add("clientId", "");
-    params.add("msg", "");
-    JSONObject jsonObjectFail = doPost(url, null, params, true, false);
-    Assert.assertEquals(jsonObjectFail.get("code"), CommonConstants.FAIL);
-
     params.add("clientId", "123");
     params.add("msg", "test");
     JSONObject jsonObject = doPost(url, null, params, true, false);
@@ -99,17 +105,34 @@ public class SendControllerTest extends BaseTest {
   }
 
   @Test
+  public void sendOneFail() throws Exception {
+    String url = "/send/one";
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+    params.add("clientId", "");
+    params.add("msg", "");
+    JSONObject jsonObjectFail = doPost(url, null, params, true, false);
+    Assert.assertEquals(jsonObjectFail.get("code"), CommonConstants.FAIL);
+  }
+
+  @Test
   public void testReceiver() {
     MessageDTO messageDTO = new MessageDTO();
     messageDTO.setClientId("123");
+    amqpTemplate.convertAndSend(PushMqConstants.EXCHANGE_FANOUT_PUSH_MESSAGE, "", JSONUtil.toJsonStr(messageDTO));
+
     messageDTO.setMsgType(MsgTypeEnum.ALL.name());
     amqpTemplate.convertAndSend(PushMqConstants.EXCHANGE_FANOUT_PUSH_MESSAGE, "", JSONUtil.toJsonStr(messageDTO));
 
     messageDTO.setMsgType(MsgTypeEnum.ONE.name());
     amqpTemplate.convertAndSend(PushMqConstants.EXCHANGE_FANOUT_PUSH_MESSAGE, "", JSONUtil.toJsonStr(messageDTO));
+  }
 
-    messageDTO.setMsgType("TOPIC");
-    amqpTemplate.convertAndSend(PushMqConstants.EXCHANGE_FANOUT_PUSH_MESSAGE, "", JSONUtil.toJsonStr(messageDTO));
+  @Autowired
+  Receiver receiver;
+
+  @Test
+  public void testReceiverExpFail() {
+    receiver.receiveTopicPush("aaaaaaaa");
   }
 
   @Test
@@ -122,11 +145,11 @@ public class SendControllerTest extends BaseTest {
     String url = "/ws/info";
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("t", "1614778320258");
-    JSONObject jsonObject = doGet(url, params);
+    JSONObject jsonObject = doGet(url, true, false, params);
     Assert.assertEquals(jsonObject.get("websocket"), true);
 
     String url1 = "/ws/info-(123)";
-    JSONObject jsonObjectFail = doGet(url1, params);
+    JSONObject jsonObjectFail = doGet(url1, true, false, params);
     Assert.assertEquals(jsonObjectFail.get("code"), CommonConstants.FAIL);
   }
 
@@ -154,19 +177,42 @@ public class SendControllerTest extends BaseTest {
   CustomEventHandler customEventHandler;
 
   @MockBean
-  StompHeaderAccessor stompHeaderAccessor;
+  StompHeaderAccessor accessor;
 
   @Test
   public void testCustomEventHandler(){
-    Mockito.when(stompHeaderAccessor.getCommand()).thenReturn(StompCommand.CONNECT);
+    Mockito.when(accessor.getCommand()).thenReturn(StompCommand.CONNECT);
 
-    Principal principal = new WebSocketPrincipal("zhangsan");
-    Mockito.when(stompHeaderAccessor.getUser()).thenReturn(principal);
-    stompHeaderAccessor.setNativeHeader("token","111");
-    stompHeaderAccessor.setNativeHeader("clientId","123");
-    customEventHandler.handler(stompHeaderAccessor);
+    WebSocketPrincipal principal = new WebSocketPrincipal("zhangsan");
+    principal.setName("lisi");
+    log.info(principal.getName());
+    Mockito.when(accessor.getUser()).thenReturn(principal);
+    customEventHandler.handler(accessor);
 
-    Mockito.when(stompHeaderAccessor.getCommand()).thenReturn(StompCommand.DISCONNECT);
-    customEventHandler.handler(stompHeaderAccessor);
+    Mockito.when(accessor.getCommand()).thenReturn(StompCommand.DISCONNECT);
+    customEventHandler.handler(accessor);
+
+    Mockito.when(accessor.getCommand()).thenReturn(StompCommand.CONNECT);
+    Map<String, List<String>> headerMap = new HashMap<>();
+    List<String> list = new ArrayList<>();
+    list.add("zhangsan");
+    headerMap.put("key", list);
+    Mockito.when(accessor.toNativeHeaderMap()).thenReturn(headerMap);
+    customEventHandler.handler(accessor);
+  }
+
+  @Test
+  public void testCustomEventHandlerElse(){
+    Mockito.when(accessor.getCommand()).thenReturn(StompCommand.CONNECT);
+
+    WebSocketPrincipal principal = new WebSocketPrincipal("zhangsan");
+    Mockito.when(accessor.getUser()).thenReturn(principal);
+    Map<String, List<String>> headerMap = new HashMap<>();
+    List<String> list = new ArrayList<>();
+    list.add("zhangsan");
+    list.add("lisi");
+    headerMap.put("key", list);
+    Mockito.when(accessor.toNativeHeaderMap()).thenReturn(headerMap);
+    customEventHandler.handler(accessor);
   }
 }

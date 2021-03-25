@@ -42,9 +42,11 @@ public class Receiver {
   public void receiveTopicPush(@Payload String message) {
     try {
       // 服务首次消费延时10秒，为了避免在服务刚启动后，WebSocket连接还未建立的情况下，进行消费
-      if (isFirst && !EnvEnum.TESTCASE.getType().equals(springProfilesActive)) {
+      if (isFirst) {
         log.warn("服务首次启动消费延时10秒，为了避免在服务刚启动后，WebSocket连接还未建立的情况下进行消费。开始...");
-        Thread.sleep(10000);
+        if (!EnvEnum.TESTCASE.getType().equals(springProfilesActive)) {
+          Thread.sleep(10000);
+        }
         isFirst = false;
         log.warn("延时10秒结束");
       }

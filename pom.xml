@@ -30,9 +30,10 @@
     <swagger.version>2.9.2</swagger.version>
     <sonar.exclusions>
       **/push/common/PushConstants.java,
+      **/push/config/WebSocketConfig.java,
       **/push/config/ConnectEventListener.java,
       **/push/config/DisconnectEventListener.java,
-      **/push/handler/**,
+      **/push/handler/CheckTokenHandler.java,
       **/push/PushApplication.java
     </sonar.exclusions>
   </properties>

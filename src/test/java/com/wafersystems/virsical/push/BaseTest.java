@@ -270,6 +270,8 @@ public class BaseTest extends AbstractTestNGSpringContextTests {
 //    requestBuilder.header(HttpHeaders.AUTHORIZATION, OAuth2AccessToken.BEARER_TYPE + " " + token);
     if (isInner) {
       requestBuilder.header(SecurityConstants.FROM, SecurityConstants.FROM_IN);
+      requestBuilder.header("referer", "referer");
+      requestBuilder.header("origin", "origin");
     }
     if (StringUtils.isNotBlank(content)) {
       requestBuilder.contentType(MediaType.APPLICATION_JSON);

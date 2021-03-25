@@ -41,7 +41,6 @@ logging:
   file: ${user.dir}/logs/${spring.application.name}-${server.port}.log
   level:
     root: info
-    com.wafersystems.virsical.map.mapper: debug
 
 # 加解密根密码
 jasypt:
