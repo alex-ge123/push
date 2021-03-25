@@ -61,6 +61,9 @@ public class CheckTokenHandler {
     HttpHeaders headers = new HttpHeaders();
     headers.set("Authorization", getAuthorizationHeader(clientId, clientSecret));
     Map map = postForMap(checkTokenEndpointUrl, formData, headers);
+    if (map == null) {
+      throw new BusinessException("[CheckToken无效]: " + token + ", [Result为空]");
+    }
     String error = "error";
     String active = "active";
     if (map.containsKey(error) || !Boolean.TRUE.equals(map.get(active))) {

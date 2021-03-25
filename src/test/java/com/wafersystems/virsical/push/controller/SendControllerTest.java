@@ -147,7 +147,7 @@ public class SendControllerTest extends BaseTest {
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("t", "1614778320258");
     JSONObject jsonObject = doGet(url, true, false, params);
-    Assert.assertEquals(jsonObject.get("websocket"), CommonConstants.FAIL);
+    Assert.assertEquals(jsonObject.get("code"), CommonConstants.FAIL);
 
     String url1 = "/ws/info-(123)";
     JSONObject jsonObjectFail = doGet(url1, true, false, params);
