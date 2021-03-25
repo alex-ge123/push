@@ -58,7 +58,7 @@ feign:
 
 push:
   # 发送建立连接与关闭连接MQ消息开关
-  send-connect-mq: false
+  send-connect-mq: true
   fanout:
     queue: queue.push.message.${spring.cloud.client.ip-address}-${server.port}
 

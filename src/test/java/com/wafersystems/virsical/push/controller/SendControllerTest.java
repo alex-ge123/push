@@ -9,14 +9,21 @@ import com.wafersystems.virsical.common.core.dto.MessageDTO;
 import com.wafersystems.virsical.push.BaseTest;
 import com.wafersystems.virsical.push.config.WebSocketPrincipal;
 import com.wafersystems.virsical.push.handler.CheckTokenHandler;
+import com.wafersystems.virsical.push.handler.CustomEventHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.mockito.Mockito;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.messaging.simp.stomp.StompCommand;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestOperations;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.security.Principal;
 
 /**
  * SendControllerTest
@@ -34,7 +41,7 @@ public class SendControllerTest extends BaseTest {
   SendController sendController;
 
   @Test
-  public void update() throws Exception {
+  public void sendFanout() throws Exception {
     String url = "/send/fanout";
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("product", "map");
@@ -141,5 +148,25 @@ public class SendControllerTest extends BaseTest {
       Assert.assertTrue(true);
     }
 
+  }
+
+  @Autowired
+  CustomEventHandler customEventHandler;
+
+  @MockBean
+  StompHeaderAccessor stompHeaderAccessor;
+
+  @Test
+  public void testCustomEventHandler(){
+    Mockito.when(stompHeaderAccessor.getCommand()).thenReturn(StompCommand.CONNECT);
+
+    Principal principal = new WebSocketPrincipal("zhangsan");
+    Mockito.when(stompHeaderAccessor.getUser()).thenReturn(principal);
+    stompHeaderAccessor.setNativeHeader("token","111");
+    stompHeaderAccessor.setNativeHeader("clientId","123");
+    customEventHandler.handler(stompHeaderAccessor);
+
+    Mockito.when(stompHeaderAccessor.getCommand()).thenReturn(StompCommand.DISCONNECT);
+    customEventHandler.handler(stompHeaderAccessor);
   }
 }
