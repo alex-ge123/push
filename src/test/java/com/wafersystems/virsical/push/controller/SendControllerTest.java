@@ -55,6 +55,7 @@ public class SendControllerTest extends BaseTest {
     JSONObject jsonObject = doPost(url, null, params);
     Assert.assertEquals(jsonObject.get("code"), CommonConstants.SUCCESS);
   }
+
   @Test
   public void sendFanoutFail() throws Exception {
     String url = "/send/fanout";
@@ -146,7 +147,7 @@ public class SendControllerTest extends BaseTest {
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("t", "1614778320258");
     JSONObject jsonObject = doGet(url, true, false, params);
-    Assert.assertEquals(jsonObject.get("websocket"), true);
+    Assert.assertEquals(jsonObject.get("websocket"), CommonConstants.FAIL);
 
     String url1 = "/ws/info-(123)";
     JSONObject jsonObjectFail = doGet(url1, true, false, params);
@@ -167,6 +168,7 @@ public class SendControllerTest extends BaseTest {
     CheckTokenHandler checkTokenHandler = new CheckTokenHandler(restTemplate);
     try {
       checkTokenHandler.checkToken("123456");
+      checkTokenHandler.checkToken("");
     } catch (IllegalStateException e) {
       Assert.assertTrue(true);
     }
@@ -180,7 +182,7 @@ public class SendControllerTest extends BaseTest {
   StompHeaderAccessor accessor;
 
   @Test
-  public void testCustomEventHandler(){
+  public void testCustomEventHandler() {
     Mockito.when(accessor.getCommand()).thenReturn(StompCommand.CONNECT);
 
     WebSocketPrincipal principal = new WebSocketPrincipal("zhangsan");
@@ -202,7 +204,7 @@ public class SendControllerTest extends BaseTest {
   }
 
   @Test
-  public void testCustomEventHandlerElse(){
+  public void testCustomEventHandlerElse() {
     Mockito.when(accessor.getCommand()).thenReturn(StompCommand.CONNECT);
 
     WebSocketPrincipal principal = new WebSocketPrincipal("zhangsan");

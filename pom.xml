@@ -32,9 +32,7 @@
       **/push/common/PushConstants.java,
       **/push/config/WebSocketConfig.java,
       **/push/config/ConnectEventListener.java,
-      **/push/config/DisconnectEventListener.java,
-      **/push/handler/CheckTokenHandler.java,
-      **/push/PushApplication.java
+      **/push/config/DisconnectEventListener.java
     </sonar.exclusions>
   </properties>
 

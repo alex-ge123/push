@@ -54,32 +54,17 @@ public class CheckTokenHandler {
   public Map checkToken(String token) {
     // 验证token
     if (StrUtil.isBlank(token)) {
-      throw new BusinessException("[CheckToken] token不存在: " + token);
+      throw new BusinessException("[Token不存在]: " + token);
     }
     MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
     formData.add("token", token);
     HttpHeaders headers = new HttpHeaders();
     headers.set("Authorization", getAuthorizationHeader(clientId, clientSecret));
-    Map<String, Object> map = postForMap(checkTokenEndpointUrl, formData, headers);
-    if (map == null) {
-      throw new BusinessException("[CheckToken] token无效: " + token);
-    }
+    Map map = postForMap(checkTokenEndpointUrl, formData, headers);
     String error = "error";
-    if (map.containsKey(error)) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("check_token returned error: " + map.get("error"));
-      }
-      throw new BusinessException("[CheckToken] token无效: " + token);
-    }
-
-    // gh-838
     String active = "active";
-    if (!Boolean.TRUE.equals(map.get(active))) {
-      logger.debug("check_token returned active attribute: " + map.get("active"));
-      throw new BusinessException("[CheckToken] token无效: " + token);
-    }
-    if (logger.isDebugEnabled()) {
-      logger.debug("[CheckToken] : " + map.toString());
+    if (map.containsKey(error) || !Boolean.TRUE.equals(map.get(active))) {
+      throw new BusinessException("[CheckToken无效]: " + token + ", [Result]: " + map.toString());
     }
     return map;
   }
@@ -94,15 +79,11 @@ public class CheckTokenHandler {
     return "Basic " + Base64.encode(creds.getBytes(StandardCharsets.UTF_8));
   }
 
-  private Map<String, Object> postForMap(String path, MultiValueMap<String, String> formData, HttpHeaders headers) {
+  private Map postForMap(String path, MultiValueMap<String, String> formData, HttpHeaders headers) {
     if (headers.getContentType() == null) {
       headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
     }
-    @SuppressWarnings("rawtypes")
-    Map map = restTemplate.exchange(path, HttpMethod.POST,
+    return restTemplate.exchange(path, HttpMethod.POST,
       new HttpEntity<>(formData, headers), Map.class).getBody();
-    @SuppressWarnings("unchecked")
-    Map<String, Object> result = map;
-    return result;
   }
 }
