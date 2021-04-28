@@ -1,19 +1,12 @@
 package com.wafersystems.virsical.push.config;
 
-import com.alibaba.fastjson.JSON;
-import com.wafersystems.virsical.common.core.constant.PushMqConstants;
-import com.wafersystems.virsical.common.core.constant.enums.MsgActionEnum;
-import com.wafersystems.virsical.common.core.constant.enums.MsgTypeEnum;
-import com.wafersystems.virsical.common.core.dto.MessageDTO;
 import com.wafersystems.virsical.push.handler.CheckTokenHandler;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -25,9 +18,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
-
-import java.util.Map;
 
 /**
  * WebSocket配置
