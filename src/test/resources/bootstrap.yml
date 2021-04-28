@@ -70,3 +70,27 @@ check:
     - '-'
     - '('
     - ')'
+
+# 系统参数配置
+system:
+  # 运营模式开关
+  operation-mode: false
+  # 云服务开关
+  cloud-service: false
+  # 手机号全局唯一（开关关闭时，会出现多个相同的号码，请不要打开手机号认证）
+  phone-unique: false
+  # 手机号认证开关
+  phone-auth: true
+  # 邮箱认证开关
+  email-auth: true
+  # 允许外部请求免密认证
+  allow-external-requests-nopwd-auth: false
+  # 默认域配置（开启配置对应域名，不开启配置空）
+  default-domain: ''
+  # 特殊租户id（当系统是云服务时，不查询云服务菜单权限过滤）
+  special-tenant:
+    - 0
+  # 用户信息是否（手机号、邮箱）加密 true:加密  false:不加密
+  # 从不加密模式切换至加密模式后，重启系统，会自动对手机号、邮箱进行加密
+  # 从加密模式切换至不加密模式后，重启系统，会自动对手机号、邮箱进行解密
+  user-info-encrypt: false
