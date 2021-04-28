@@ -52,10 +52,8 @@ public class PushFilter extends GenericFilterBean {
         String referer = request.getHeader("referer");
         String origin = request.getHeader("origin");
         boolean refererInvalid = false;
-        if (StrUtil.isNotBlank(referer) && StrUtil.isNotBlank(origin)) {
-          if (!referer.startsWith(origin)) {
-            refererInvalid = true;
-          }
+        if (StrUtil.isNotBlank(referer) && StrUtil.isNotBlank(origin) && !referer.startsWith(origin)) {
+          refererInvalid = true;
         }
         if (paramInvalid || urlInvalid || refererInvalid) {
           log.error("地址无效[{}]：[{}]，参数无效[{}]：[{}]，referer无效[{}]：[{}]",

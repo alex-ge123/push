@@ -29,6 +29,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.Test;
 
 /**
  * 接口测试基类
@@ -76,6 +77,10 @@ public class BaseTest extends AbstractTestNGSpringContextTests {
     this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac)
       .addFilter(pushFilter)
       .build();
+  }
+
+  @Test
+  public void test() {
   }
 
   /**

@@ -48,7 +48,8 @@ public class CustomEventHandler {
           if (headerMap.isEmpty()) {
             map.put("clientId", user);
           } else {
-            for (String key : headerMap.keySet()) {
+            for (Map.Entry<String,List<String>> entry : headerMap.entrySet()) {
+              String key = entry.getKey();
               map.put(key, headerMap.get(key).get(0));
             }
           }
