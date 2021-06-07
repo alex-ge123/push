@@ -1,5 +1,6 @@
 package com.wafersystems.virsical.push.config;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.wafersystems.virsical.push.handler.CheckTokenHandler;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+
+import java.util.Map;
 
 /**
  * WebSocket配置
@@ -112,7 +115,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
           log.info("CONNECT >>> {}", message);
           // 验证token
-          checkTokenHandler.checkToken(token);
+          final Map map = checkTokenHandler.checkToken(token);
+          final Object userId = map.get("user_id");
+          if (ObjectUtil.isNotNull(userId)) {
+            clientId = "user_id_" + userId;
+          }
           // 设置当前用户
           WebSocketPrincipal webSocketPrincipal = new WebSocketPrincipal(clientId);
           accessor.setUser(webSocketPrincipal);
