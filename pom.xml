@@ -83,7 +83,7 @@
     <dependency>
       <groupId>com.wafersystems</groupId>
       <artifactId>virsical-common-security</artifactId>
-      <version>6.9.103</version>
+      <version>6.9.104</version>
     </dependency>
     <!--TestNG-->
     <dependency>
