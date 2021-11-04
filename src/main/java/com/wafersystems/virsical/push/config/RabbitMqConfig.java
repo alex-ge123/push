@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * rabbitmq配置
  *
@@ -60,7 +63,11 @@ public class RabbitMqConfig {
    */
   @Bean
   public Queue messageFanoutQueue() {
-    return new Queue(pushFanoutQueue);
+    Map<String, Object> map = new HashMap<>(1);
+    // 队列中的消息未被消费则一个小时后过期
+    map.put("x-message-ttl", 3600000);
+    //参数1：队列名称  参数2：是否持久化  参数3：排他性  参数4：是否自动删除  参数5：过期时间
+    return new Queue(pushFanoutQueue, true, false, false, map);
   }
 
   /**
