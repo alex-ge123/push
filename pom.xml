@@ -89,6 +89,12 @@
       <groupId>com.wafersystems</groupId>
       <artifactId>virsical-common-security</artifactId>
       <version>7.1.103</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>brave-context-log4j2</artifactId>
+          <groupId>io.zipkin.brave</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!--TestNG-->
     <dependency>
