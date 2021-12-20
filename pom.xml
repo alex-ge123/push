@@ -45,6 +45,12 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
+      <exclusions>
+        <exclusion>
+          <artifactId>log4j-to-slf4j</artifactId>
+          <groupId>org.apache.logging.log4j</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!--web 模块-->
     <dependency>
@@ -89,6 +95,12 @@
       <groupId>com.wafersystems</groupId>
       <artifactId>virsical-common-security</artifactId>
       <version>6.11.102</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>brave-context-log4j2</artifactId>
+          <groupId>io.zipkin.brave</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!--TestNG-->
     <dependency>
