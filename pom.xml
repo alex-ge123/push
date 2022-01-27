@@ -24,7 +24,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>1.8</java.version>
     <mybatis-plus.version>3.1.1</mybatis-plus.version>
-    <mysql.connector.version>8.0.13</mysql.connector.version>
+    <mysql.connector.version>8.0.28</mysql.connector.version>
     <ttl.version>2.10.2</ttl.version>
     <fastjson.version>1.2.70</fastjson.version>
     <swagger.version>2.9.2</swagger.version>
