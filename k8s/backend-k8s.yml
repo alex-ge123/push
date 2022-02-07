@@ -32,6 +32,8 @@ spec:
             -Djasypt.encryptor.password=wafer
             __ARTIFACT_ID__.jar
             --spring.profiles.active=k8s
+            --spring.cloud.config.discovery.enabled=false
+            --spring.cloud.config.uri=http://wafer:wafer@__GROUP_NAME__-config:8080
         ports:
         - containerPort: 8080
           name: http
