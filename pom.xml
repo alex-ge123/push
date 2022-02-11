@@ -28,6 +28,7 @@
     <ttl.version>2.10.2</ttl.version>
     <fastjson.version>1.2.70</fastjson.version>
     <swagger.version>2.9.2</swagger.version>
+    <logback.version>1.2.10</logback.version>
     <sonar.exclusions>
       **/push/common/PushConstants.java,
       **/push/config/WebSocketConfig.java,
@@ -94,7 +95,7 @@
     <dependency>
       <groupId>com.wafersystems</groupId>
       <artifactId>virsical-common-security</artifactId>
-      <version>7.2.101</version>
+      <version>7.3.104</version>
       <exclusions>
         <exclusion>
           <artifactId>brave-context-log4j2</artifactId>
