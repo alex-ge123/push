@@ -63,7 +63,7 @@ public class Receiver {
         simpMessagingTemplate.convertAndSend(PushConstants.PUSH_TOPIC_DESTINATION + messageDTO.getProduct(),
           messageDTO);
       }
-    } catch (Exception e) {
+    } catch (InterruptedException e) {
       log.error("消息监听处理异常", e);
     }
   }
