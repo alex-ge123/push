@@ -101,6 +101,10 @@
           <artifactId>brave-context-log4j2</artifactId>
           <groupId>io.zipkin.brave</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>tomcat-embed-el</artifactId>
+          <groupId>org.apache.tomcat.embed</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <!--TestNG-->
