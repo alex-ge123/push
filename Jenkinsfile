@@ -1,8 +1,10 @@
+@Library('buildImage') _
 pipeline {
     agent any
 
     parameters {
         choice(name: 'replicasNum', choices: ['1', '2', '3', '4', '5'], description: '集群数量')
+        choice(name: 'deploy', choices: 'k8s\nimage', description: 'k8s发布到容器环境，image打包docker镜像')
     }
 
     environment {
@@ -16,6 +18,12 @@ pipeline {
 
     stages {
         stage('Clean') {
+            when {
+                environment name: 'deploy', value: 'k8s'
+                expression {
+                    currentBuild.result == null || currentBuild.result == 'SUCCESS'
+                }
+            }
             steps {
             echo "集群数量为 : ${REPLICAS_NUM}"
                 script {
@@ -51,6 +59,7 @@ pipeline {
         }
         stage('Deploy') {
             when {
+                environment name: 'deploy', value: 'k8s'
                 expression {
                     currentBuild.result == null || currentBuild.result == 'SUCCESS'
                 }
@@ -118,6 +127,21 @@ pipeline {
                         sh "kubectl apply -f k8s.yml -n ${RD_ENV}"
                     }
                 }
+            }
+        }
+        stage('Image') {
+            when {
+                environment name: 'deploy', value: 'image'
+                expression {
+                    currentBuild.result == null || currentBuild.result == 'SUCCESS'
+                }
+            }
+            steps {
+                script {
+                    GROUP_NAME = JOB_NAME.split("/")[0]
+                }
+                echo "${GROUP_NAME} ${GIT_BRANCH} ${WORKSPACE}"
+                buildImageLibrary("${GROUP_NAME}", "${SERVICE_NAME}", "${GIT_BRANCH}", "${WORKSPACE}")
             }
         }
     }
