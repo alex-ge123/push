@@ -95,7 +95,7 @@
     <dependency>
       <groupId>com.wafersystems</groupId>
       <artifactId>virsical-common-security</artifactId>
-      <version>7.6.108</version>
+      <version>7.6.109</version>
       <exclusions>
         <exclusion>
           <artifactId>brave-context-log4j2</artifactId>
