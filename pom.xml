@@ -84,6 +84,17 @@
       <groupId>com.wafersystems</groupId>
       <artifactId>virsical-common-security</artifactId>
       <version>6.4.103</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>fastjson</artifactId>
+          <groupId>com.alibaba</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>fastjson</artifactId>
+      <version>1.2.83</version>
     </dependency>
     <!--TestNG-->
     <dependency>
